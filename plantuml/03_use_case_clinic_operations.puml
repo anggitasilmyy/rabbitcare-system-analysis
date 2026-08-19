@@ -1,0 +1,86 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam actorStyle awesome
+
+title Use Case Detail - Operasional Klinik
+
+actor "Admin / Resepsionis" as Admin
+actor "Dokter Hewan" as Doctor
+actor "Groomer / Pet Care Staff" as Groomer
+actor "Manajer Klinik" as Manager
+
+rectangle "Portal Operasional Rabbit Clinic and Care" {
+  usecase "Login Petugas" as C1
+  usecase "Kelola Data Pemilik" as C2
+  usecase "Kelola Data Pasien Kelinci" as C3
+  usecase "Kelola Jenis Layanan dan Harga" as C4
+  usecase "Kelola Jadwal Dokter" as C5
+  usecase "Kelola Jadwal Groomer" as C6
+  usecase "Konfirmasi Booking" as C7
+  usecase "Ubah / Batalkan Booking" as C8
+  usecase "Check-in Pasien" as C9
+  usecase "Catat Berat dan Keluhan Awal" as C10
+  usecase "Kelola Antrean" as C11
+  usecase "Lihat Riwayat Kesehatan" as C12
+  usecase "Catat Pemeriksaan Fisik" as C13
+  usecase "Catat Diagnosis dan Tindakan" as C14
+  usecase "Buat Resep dan Rekomendasi" as C15
+  usecase "Tentukan Jadwal Kontrol" as C16
+  usecase "Catat Vaksinasi" as C17
+  usecase "Tunda Vaksinasi" as C18
+  usecase "Catat Hasil Grooming" as C19
+  usecase "Rujuk Temuan ke Dokter" as C20
+  usecase "Buat Tagihan" as C21
+  usecase "Konfirmasi Pembayaran" as C22
+  usecase "Terbitkan Bukti Pembayaran" as C23
+  usecase "Lihat Dashboard Manajemen" as C24
+  usecase "Lihat Laporan Operasional" as C25
+}
+
+Admin -- C1
+Admin -- C2
+Admin -- C3
+Admin -- C4
+Admin -- C5
+Admin -- C6
+Admin -- C7
+Admin -- C8
+Admin -- C9
+Admin -- C11
+Admin -- C21
+Admin -- C22
+Admin -- C23
+
+Doctor -- C1
+Doctor -- C11
+Doctor -- C12
+Doctor -- C13
+Doctor -- C14
+Doctor -- C15
+Doctor -- C16
+Doctor -- C17
+Doctor -- C18
+
+Groomer -- C1
+Groomer -- C11
+Groomer -- C19
+Groomer -- C20
+
+Manager -- C1
+Manager -- C24
+Manager -- C25
+
+C9 .> C10 : <<include>>
+C9 .> C11 : <<include>>
+C13 .> C12 : <<include>>
+C14 .> C13 : <<include>>
+C15 .> C14 : <<extend>>
+C16 .> C14 : <<extend>>
+C17 .> C13 : <<include>>\n(pemeriksaan pra-vaksin)
+C18 .> C17 : <<extend>>\n(tidak layak vaksin)
+C20 .> C19 : <<extend>>\n(ada temuan kesehatan)
+C22 .> C21 : <<include>>
+C23 .> C22 : <<include>>
+C25 .> C24 : <<extend>>
+@enduml

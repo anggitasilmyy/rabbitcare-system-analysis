@@ -1,0 +1,34 @@
+@startuml
+skinparam shadowing false
+title Sequence Diagram - Reminder Perawatan dan Booking Ulang
+
+actor "Scheduler" as Scheduler <<system>>
+control "Reminder Service" as RS
+database "Database" as DB
+participant "Layanan Notifikasi" as NS
+actor "Pemilik Kelinci" as Owner
+boundary "Portal Pemilik" as UI
+control "Booking Controller" as BC
+
+Scheduler -> RS : runDailyReminderCheck()
+RS -> DB : query jadwal yang mendekati tenggat
+DB --> RS : daftar reminder jatuh tempo
+loop Setiap reminder
+  RS -> NS : send(channel, pesan, penerima)
+  NS --> Owner : Email / WhatsApp / push notification
+  RS -> DB : update status=Terkirim
+end
+
+opt Pemilik memilih booking dari reminder
+  Owner -> UI : Buka reminder dan klik Booking
+  UI -> BC : openPrefilledBooking(idReminder)
+  BC -> DB : ambil kelinci, layanan, rekomendasi jadwal
+  DB --> BC : data booking awal
+  BC --> UI : form booking terisi
+  Owner -> UI : Pilih slot dan konfirmasi
+  UI -> BC : confirmBooking()
+  BC -> DB : simpan booking
+  BC -> DB : update reminder=Ditindaklanjuti
+  BC --> UI : booking berhasil
+end
+@enduml

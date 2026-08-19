@@ -1,0 +1,38 @@
+@startuml
+skinparam shadowing false
+title Sequence Diagram - Booking Layanan
+
+actor "Pemilik Kelinci" as Owner
+boundary "Portal Pemilik" as UI
+control "Booking Controller" as BC
+control "Scheduling Service" as SS
+database "Database" as DB
+control "Notification Service" as NS
+actor "Admin / Resepsionis" as Admin
+
+Owner -> UI : Login dan pilih profil kelinci
+Owner -> UI : Pilih layanan, petugas, tanggal, jam
+UI -> BC : requestBooking(data booking)
+BC -> SS : checkAvailability(petugas, waktu, layanan)
+SS -> DB : query jadwal dan booking aktif
+DB --> SS : slot dan kapasitas
+SS --> BC : hasil ketersediaan
+
+alt Slot tersedia
+  BC --> UI : tampilkan ringkasan dan estimasi biaya
+  Owner -> UI : Konfirmasi booking
+  UI -> BC : confirmBooking()
+  BC -> DB : simpan booking(status=Terkonfirmasi)
+  DB --> BC : nomor booking
+  BC -> NS : kirimKonfirmasi(nomor booking)
+  NS --> Owner : Notifikasi booking
+  NS --> Admin : Notifikasi booking baru
+  BC --> UI : Booking berhasil + nomor booking
+else Slot tidak tersedia
+  BC -> SS : getAlternativeSlots()
+  SS -> DB : query alternatif jadwal
+  DB --> SS : daftar alternatif
+  SS --> BC : alternatif jadwal
+  BC --> UI : tampilkan alternatif
+end
+@enduml

@@ -1,0 +1,41 @@
+@startuml
+skinparam shadowing false
+title Activity Diagram - Reminder Perawatan
+
+|Sistem|
+start
+:Menjalankan pengecekan jadwal harian;
+:Membaca jadwal vaksin, kontrol, obat, grooming, kuku, gigi, dan berat badan;
+:Memilih jadwal yang mendekati tenggat;
+if (Ada reminder jatuh tempo?) then (Ya)
+  :Membuat pesan reminder;
+  :Mengirim melalui kanal pilihan pemilik;
+else (Tidak)
+  :Mencatat tidak ada reminder;
+  stop
+endif
+
+|Layanan Notifikasi|
+:Meneruskan pesan ke email / WhatsApp / push notification;
+
+|Pemilik Kelinci|
+:Menerima dan membuka reminder;
+if (Ingin booking sekarang?) then (Ya)
+  :Memilih tombol booking;
+  |Sistem|
+  :Membuka halaman booking dengan data kelinci dan layanan terisi;
+  |Pemilik Kelinci|
+  :Memilih jadwal dan mengonfirmasi;
+  |Sistem|
+  :Menyimpan booking;
+  :Menandai reminder "Ditindaklanjuti";
+  stop
+else (Tidak)
+  |Sistem|
+  :Menandai reminder "Terkirim";
+  if (Belum ditindaklanjuti sampai batas ulang?) then (Ya)
+    :Menjadwalkan reminder ulang;
+  endif
+  stop
+endif
+@enduml

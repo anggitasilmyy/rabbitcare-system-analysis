@@ -1,0 +1,49 @@
+@startuml
+skinparam shadowing false
+
+title Deployment Diagram - Rabbit Clinic and Care
+
+node "Perangkat Pemilik" as OwnerDevice {
+  artifact "Browser / Mobile App" as OwnerApp
+}
+
+node "Komputer / Tablet Klinik" as ClinicDevice {
+  artifact "Browser Portal Klinik" as ClinicApp
+}
+
+node "Perangkat Manajer" as ManagerDevice {
+  artifact "Browser Dashboard" as ManagerApp
+}
+
+cloud "Internet / HTTPS" as Internet
+
+node "Application Server" as AppServer {
+  artifact "Rabbit Clinic Web Application" as WebApp
+  artifact "REST API" as API
+  artifact "Background Scheduler" as Scheduler
+}
+
+node "Database Server" as DBServer {
+  database "Rabbit Care Database" as DB
+  artifact "Backup Database" as Backup
+}
+
+cloud "Notification Provider" as NotificationProvider {
+  artifact "Email / WhatsApp / Push API" as NotificationAPI
+}
+
+node "Printer Klinik" as Printer {
+  artifact "Bukti Pembayaran / Ringkasan Layanan" as Printout
+}
+
+OwnerApp --> Internet : HTTPS
+ClinicApp --> Internet : HTTPS
+ManagerApp --> Internet : HTTPS
+Internet --> WebApp : HTTPS
+WebApp --> API : internal call
+API --> DB : secure DB connection
+Scheduler --> DB : membaca jadwal reminder
+Scheduler --> NotificationAPI : HTTPS API
+ClinicApp --> Printer : LAN / USB
+DB --> Backup : scheduled backup
+@enduml

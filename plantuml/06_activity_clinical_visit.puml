@@ -1,0 +1,57 @@
+@startuml
+skinparam shadowing false
+title Activity Diagram - Kedatangan dan Pemeriksaan Kesehatan
+
+|Pemilik Kelinci|
+start
+:Datang dan menunjukkan nomor booking;
+
+|Admin / Resepsionis|
+:Mencari data booking;
+:Memverifikasi pemilik dan pasien kelinci;
+if (Booking ditemukan?) then (Ya)
+  :Mengubah status menjadi "Check-in";
+  :Mencatat berat dan keluhan awal;
+  :Membuat nomor antrean;
+else (Tidak)
+  :Mencari profil pasien / membuat kunjungan walk-in;
+  :Memverifikasi ketersediaan layanan;
+  if (Dapat dilayani?) then (Ya)
+    :Membuat booking kunjungan;
+    :Melakukan check-in;
+  else (Tidak)
+    :Menawarkan jadwal lain;
+    stop
+  endif
+endif
+
+|Sistem|
+:Menambahkan pasien ke antrean dokter;
+
+|Dokter Hewan|
+:Membuka daftar antrean;
+:Memilih pasien;
+:Melihat profil dan riwayat kesehatan;
+:Melakukan anamnesis;
+:Melakukan pemeriksaan fisik;
+if (Kondisi darurat?) then (Ya)
+  :Memberikan tindakan prioritas / stabilisasi;
+else (Tidak)
+  :Melanjutkan pemeriksaan normal;
+endif
+:Menentukan diagnosis / dugaan penyakit;
+:Mencatat tindakan medis;
+if (Perlu obat?) then (Ya)
+  :Membuat resep;
+endif
+if (Perlu kontrol?) then (Ya)
+  :Menentukan tanggal kontrol;
+endif
+:Menyimpan catatan pemeriksaan;
+
+|Sistem|
+:Memperbarui riwayat kesehatan;
+:Mengubah status layanan menjadi "Selesai Dilayani";
+:Mengirim data layanan ke proses penagihan;
+stop
+@enduml

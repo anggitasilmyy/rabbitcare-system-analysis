@@ -1,0 +1,66 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecase {
+  BackgroundColor White
+  BorderColor Black
+}
+
+title Use Case Konteks - Rabbit Clinic and Care
+
+actor "Pemilik Kelinci" as Owner
+actor "Admin / Resepsionis" as Admin
+actor "Dokter Hewan" as Doctor
+actor "Groomer / Pet Care Staff" as Groomer
+actor "Manajer Klinik" as Manager
+actor "Layanan Notifikasi\n(Email/WhatsApp/Push)" as Notification <<system>>
+
+rectangle "Sistem Informasi Rabbit Clinic and Care" {
+  usecase "Kelola Akun dan\nProfil Kelinci" as UC_Profile
+  usecase "Kelola Booking\nLayanan" as UC_Booking
+  usecase "Kelola Kedatangan\ndan Antrean" as UC_CheckIn
+  usecase "Kelola Pemeriksaan\ndan Rekam Medis" as UC_Medical
+  usecase "Kelola Vaksinasi" as UC_Vaccine
+  usecase "Kelola Grooming\ndan Rabbit Care" as UC_Grooming
+  usecase "Kelola Tagihan\ndan Pembayaran" as UC_Billing
+  usecase "Kelola Jadwal\nPetugas" as UC_Schedule
+  usecase "Kelola Reminder\nPerawatan" as UC_Reminder
+  usecase "Lihat Dashboard\ndan Laporan" as UC_Report
+}
+
+Owner -- UC_Profile
+Owner -- UC_Booking
+Owner -- UC_Billing
+Owner -- UC_Reminder
+Owner -- UC_Medical : melihat riwayat
+Owner -- UC_Vaccine : melihat riwayat
+Owner -- UC_Grooming : melihat riwayat
+
+Admin -- UC_Profile
+Admin -- UC_Booking
+Admin -- UC_CheckIn
+Admin -- UC_Billing
+Admin -- UC_Schedule
+
+Doctor -- UC_CheckIn : melihat antrean
+Doctor -- UC_Medical
+Doctor -- UC_Vaccine
+Doctor -- UC_Schedule : melihat jadwal
+
+Groomer -- UC_CheckIn : melihat antrean
+Groomer -- UC_Grooming
+Groomer -- UC_Schedule : melihat jadwal
+
+Manager -- UC_Report
+Notification -- UC_Reminder
+
+UC_Medical .> UC_CheckIn : <<include>>
+UC_Vaccine .> UC_Medical : <<include>>\n(pemeriksaan pra-vaksin)
+UC_Grooming .> UC_CheckIn : <<include>>
+UC_Billing .> UC_Medical : <<extend>>
+UC_Billing .> UC_Vaccine : <<extend>>
+UC_Billing .> UC_Grooming : <<extend>>
+UC_Reminder .> UC_Booking : <<extend>>\n(booking dari notifikasi)
+@enduml

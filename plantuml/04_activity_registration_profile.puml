@@ -1,0 +1,45 @@
+@startuml
+skinparam shadowing false
+title Activity Diagram - Registrasi dan Profil Kelinci
+
+|Pemilik Kelinci|
+start
+:Buka aplikasi / website;
+:Memilih registrasi;
+:Mengisi data akun;
+
+|Sistem|
+:Validasi kelengkapan dan keunikan data;
+if (Data valid?) then (Ya)
+  :Menyimpan akun;
+  :Mengirim konfirmasi registrasi;
+else (Tidak)
+  :Menampilkan pesan kesalahan;
+  |Pemilik Kelinci|
+  :Memperbaiki data akun;
+  |Sistem|
+  :Validasi ulang;
+endif
+
+|Pemilik Kelinci|
+:Login;
+:Memilih menu tambah profil kelinci;
+:Mengisi identitas, kondisi, dan riwayat awal kelinci;
+:Mengunggah foto (opsional);
+
+|Sistem|
+:Validasi data profil kelinci;
+if (Data profil lengkap?) then (Ya)
+  :Membuat ID pasien / nomor rekam medis;
+  :Menyimpan profil kelinci;
+  :Menampilkan profil berhasil dibuat;
+  stop
+else (Tidak)
+  :Menampilkan field yang harus diperbaiki;
+  |Pemilik Kelinci|
+  :Melengkapi profil kelinci;
+  |Sistem|
+  :Menyimpan profil setelah valid;
+  stop
+endif
+@enduml

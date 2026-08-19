@@ -1,0 +1,26 @@
+@startuml
+skinparam shadowing false
+title State Machine Diagram - Siklus Status Booking
+
+[*] --> MenungguKonfirmasi : booking dibuat
+MenungguKonfirmasi --> Terkonfirmasi : admin/sistem mengonfirmasi
+MenungguKonfirmasi --> Dibatalkan : pemilik/admin membatalkan
+
+Terkonfirmasi --> DijadwalkanUlang : perubahan jadwal
+DijadwalkanUlang --> Terkonfirmasi : jadwal baru disetujui
+Terkonfirmasi --> Dibatalkan : dibatalkan
+Terkonfirmasi --> TidakHadir : melewati jadwal tanpa check-in
+Terkonfirmasi --> CheckIn : pasien datang
+
+CheckIn --> MenungguAntrean : data awal dan nomor antrean dibuat
+MenungguAntrean --> SedangDilayani : dipanggil petugas
+MenungguAntrean --> SedangDilayani : kondisi darurat / diprioritaskan
+SedangDilayani --> SelesaiDilayani : catatan layanan disimpan
+SelesaiDilayani --> BelumDibayar : tagihan terbentuk
+BelumDibayar --> Lunas : pembayaran terverifikasi
+BelumDibayar --> BelumDibayar : pembayaran gagal / kurang
+
+Lunas --> [*]
+Dibatalkan --> [*]
+TidakHadir --> [*]
+@enduml

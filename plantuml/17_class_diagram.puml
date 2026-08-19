@@ -1,0 +1,277 @@
+@startuml
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+hide circle
+
+title Class Diagram - Rabbit Clinic and Care
+
+abstract class User {
+  - idUser: UUID
+  - nama: String
+  - noTelepon: String
+  - email: String
+  - passwordHash: String
+  - statusAkun: String
+  + login()
+  + logout()
+}
+
+class PemilikKelinci {
+  - alamat: String
+  + tambahProfilKelinci()
+  + bookingLayanan()
+  + lihatRiwayat()
+}
+
+abstract class PetugasKlinik {
+  - idPegawai: String
+  - jabatan: String
+}
+
+class AdminResepsionis {
+  + konfirmasiBooking()
+  + checkInPasien()
+  + buatTagihan()
+  + konfirmasiPembayaran()
+}
+
+class DokterHewan {
+  - noLisensi: String
+  - spesialisasi: String
+  + periksaPasien()
+  + catatDiagnosis()
+  + catatVaksinasi()
+}
+
+class Groomer {
+  - kompetensi: String
+  + lakukanGrooming()
+  + catatTemuan()
+}
+
+class ManajerKlinik {
+  + lihatDashboard()
+  + lihatLaporan()
+}
+
+class Kelinci {
+  - idKelinci: UUID
+  - nomorRekamMedis: String
+  - nama: String
+  - jenisKelamin: String
+  - tanggalLahir: Date
+  - ras: String
+  - warnaCiri: String
+  - beratTerakhir: Decimal
+  - statusSteril: Boolean
+  - alergi: Text
+  - fotoUrl: String
+  + hitungUsia()
+}
+
+class Layanan {
+  - idLayanan: UUID
+  - namaLayanan: String
+  - kategori: KategoriLayanan
+  - durasiMenit: Integer
+  - hargaDasar: Decimal
+  - aktif: Boolean
+}
+
+class JadwalLayanan {
+  - idJadwal: UUID
+  - tanggal: Date
+  - jamMulai: Time
+  - jamSelesai: Time
+  - kapasitas: Integer
+  - status: String
+  + cekKetersediaan()
+}
+
+class Booking {
+  - idBooking: UUID
+  - nomorBooking: String
+  - dibuatPada: DateTime
+  - keluhanAwal: Text
+  - status: StatusBooking
+  - catatan: Text
+  + konfirmasi()
+  + batalkan()
+  + jadwalkanUlang()
+}
+
+class CheckIn {
+  - idCheckIn: UUID
+  - waktuDatang: DateTime
+  - beratAwal: Decimal
+  - keluhanAwal: Text
+  - nomorAntrean: String
+}
+
+class RekamMedis {
+  - idRekamMedis: UUID
+  - tanggalPemeriksaan: DateTime
+  - anamnesis: Text
+  - pemeriksaanFisik: Text
+  - diagnosis: Text
+  - tindakan: Text
+  - rekomendasi: Text
+  - tanggalKontrol: Date
+}
+
+class Resep {
+  - idResep: UUID
+  - tanggalResep: Date
+  - catatan: Text
+}
+
+class DetailResep {
+  - idDetailResep: UUID
+  - dosis: String
+  - frekuensi: String
+  - durasi: String
+  - jumlah: Decimal
+}
+
+class Obat {
+  - idObat: UUID
+  - namaObat: String
+  - satuan: String
+  - harga: Decimal
+}
+
+class CatatanVaksinasi {
+  - idVaksinasi: UUID
+  - jenisVaksin: String
+  - tanggalPemberian: Date
+  - dosis: String
+  - nomorBatch: String
+  - reaksi: Text
+  - tanggalBerikutnya: Date
+  - status: String
+}
+
+class CatatanGrooming {
+  - idGrooming: UUID
+  - tanggalGrooming: DateTime
+  - kondisiAwal: Text
+  - tindakan: Text
+  - temuan: Text
+  - rekomendasi: Text
+  - jadwalBerikutnya: Date
+}
+
+class Tagihan {
+  - idTagihan: UUID
+  - nomorTagihan: String
+  - tanggal: DateTime
+  - subtotal: Decimal
+  - diskon: Decimal
+  - total: Decimal
+  - status: StatusPembayaran
+  + hitungTotal()
+}
+
+class ItemTagihan {
+  - idItem: UUID
+  - deskripsi: String
+  - qty: Decimal
+  - hargaSatuan: Decimal
+  - jumlah: Decimal
+}
+
+class Pembayaran {
+  - idPembayaran: UUID
+  - waktuBayar: DateTime
+  - metode: String
+  - jumlahBayar: Decimal
+  - referensi: String
+  - status: String
+}
+
+class Reminder {
+  - idReminder: UUID
+  - tipe: TipeReminder
+  - jadwalKirim: DateTime
+  - kanal: String
+  - pesan: Text
+  - status: String
+  + kirim()
+  + jadwalkanUlang()
+}
+
+enum KategoriLayanan {
+  PEMERIKSAAN
+  VAKSINASI
+  GROOMING
+  RABBIT_CARE
+}
+
+enum StatusBooking {
+  MENUNGGU_KONFIRMASI
+  TERKONFIRMASI
+  CHECK_IN
+  MENUNGGU_ANTREAN
+  SEDANG_DILAYANI
+  SELESAI_DILAYANI
+  DIBATALKAN
+  DIJADWALKAN_ULANG
+  TIDAK_HADIR
+}
+
+enum StatusPembayaran {
+  BELUM_DIBAYAR
+  LUNAS
+  GAGAL
+  DIBATALKAN
+}
+
+enum TipeReminder {
+  VAKSIN
+  KONTROL
+  OBAT
+  GROOMING
+  POTONG_KUKU
+  PEMERIKSAAN_GIGI
+  CEK_BERAT_BADAN
+}
+
+User <|-- PemilikKelinci
+User <|-- PetugasKlinik
+PetugasKlinik <|-- AdminResepsionis
+PetugasKlinik <|-- DokterHewan
+PetugasKlinik <|-- Groomer
+PetugasKlinik <|-- ManajerKlinik
+
+PemilikKelinci "1" *-- "1..*" Kelinci : memiliki
+PemilikKelinci "1" -- "0..*" Booking : membuat
+Kelinci "1" -- "0..*" Booking : didaftarkan
+Layanan "1" -- "0..*" JadwalLayanan : dijadwalkan
+PetugasKlinik "1" -- "0..*" JadwalLayanan : bertugas
+JadwalLayanan "1" -- "0..*" Booking : dipilih
+Booking "1" *-- "0..1" CheckIn
+Booking "1" -- "0..1" RekamMedis
+Booking "1" -- "0..1" CatatanVaksinasi
+Booking "1" -- "0..1" CatatanGrooming
+Booking "1" -- "0..1" Tagihan
+
+Kelinci "1" -- "0..*" RekamMedis
+Kelinci "1" -- "0..*" CatatanVaksinasi
+Kelinci "1" -- "0..*" CatatanGrooming
+Kelinci "1" -- "0..*" Reminder
+DokterHewan "1" -- "0..*" RekamMedis : mencatat
+DokterHewan "1" -- "0..*" CatatanVaksinasi : memberikan
+Groomer "1" -- "0..*" CatatanGrooming : mencatat
+
+RekamMedis "1" -- "0..1" Resep
+Resep "1" *-- "1..*" DetailResep
+DetailResep "*" -- "1" Obat
+Tagihan "1" *-- "1..*" ItemTagihan
+Tagihan "1" -- "0..1" Pembayaran
+Reminder "0..*" --> "0..1" Booking : ditindaklanjuti menjadi
+
+Layanan --> KategoriLayanan
+Booking --> StatusBooking
+Tagihan --> StatusPembayaran
+Reminder --> TipeReminder
+@enduml

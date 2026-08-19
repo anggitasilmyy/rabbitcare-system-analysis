@@ -1,0 +1,60 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam actorStyle awesome
+
+title Use Case Detail - Portal Pemilik Kelinci
+
+actor "Pemilik Kelinci" as Owner
+actor "Layanan Notifikasi" as Notification <<system>>
+
+rectangle "Portal Pemilik Rabbit Clinic and Care" {
+  usecase "Registrasi Akun" as U1
+  usecase "Login" as U2
+  usecase "Kelola Profil Pemilik" as U3
+  usecase "Tambah Profil Kelinci" as U4
+  usecase "Ubah Profil Kelinci" as U5
+  usecase "Lihat Profil Kelinci" as U6
+  usecase "Melakukan Booking Layanan" as U7
+  usecase "Pilih Kelinci" as U8
+  usecase "Pilih Jenis Layanan" as U9
+  usecase "Pilih Jadwal Tersedia" as U10
+  usecase "Konfirmasi Booking" as U11
+  usecase "Lihat Status Booking" as U12
+  usecase "Batalkan Booking" as U13
+  usecase "Jadwalkan Ulang Booking" as U14
+  usecase "Lihat Riwayat Kesehatan" as U15
+  usecase "Lihat Riwayat Vaksin" as U16
+  usecase "Lihat Riwayat Grooming" as U17
+  usecase "Lihat Tagihan dan Bukti Bayar" as U18
+  usecase "Terima Reminder Perawatan" as U19
+  usecase "Booking dari Reminder" as U20
+}
+
+Owner -- U1
+Owner -- U2
+Owner -- U3
+Owner -- U4
+Owner -- U5
+Owner -- U6
+Owner -- U7
+Owner -- U12
+Owner -- U13
+Owner -- U14
+Owner -- U15
+Owner -- U16
+Owner -- U17
+Owner -- U18
+Owner -- U19
+Owner -- U20
+Notification -- U19
+
+U7 .> U8 : <<include>>
+U7 .> U9 : <<include>>
+U7 .> U10 : <<include>>
+U7 .> U11 : <<include>>
+U13 .> U12 : <<extend>>
+U14 .> U12 : <<extend>>
+U20 .> U19 : <<extend>>
+U20 .> U7 : <<include>>
+@enduml

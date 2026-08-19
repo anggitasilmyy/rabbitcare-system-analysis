@@ -1,0 +1,41 @@
+@startuml
+skinparam shadowing false
+title Sequence Diagram - Grooming dan Rabbit Care
+
+actor "Groomer / Pet Care Staff" as Groomer
+boundary "Portal Klinik" as UI
+control "Grooming Controller" as GC
+control "Reminder Service" as RS
+control "Billing Service" as BS
+database "Database" as DB
+actor "Dokter Hewan" as Doctor
+
+Groomer -> UI : Buka antrean grooming
+UI -> GC : getGroomingQueue()
+GC -> DB : query booking grooming check-in
+DB --> GC : daftar antrean
+GC --> UI : daftar antrean
+Groomer -> UI : Pilih pasien dan input kondisi awal
+UI -> GC : assessInitialCondition(data kondisi)
+
+alt Aman untuk grooming
+  Groomer -> UI : Input tindakan dan hasil grooming
+  UI -> GC : saveGroomingRecord(data hasil)
+  GC -> DB : simpan riwayat grooming
+  GC -> RS : scheduleNextGrooming(rekomendasi tanggal)
+  RS -> DB : simpan reminder grooming
+  GC -> BS : addGroomingCharge(idBooking)
+  BS -> DB : tambah item tagihan
+  opt Ada temuan kesehatan
+    GC -> DB : simpan temuan kesehatan
+    GC --> Doctor : Notifikasi rekomendasi pemeriksaan
+  end
+  GC --> UI : layanan grooming selesai
+else Tidak aman untuk grooming
+  Groomer -> UI : Input alasan penundaan
+  UI -> GC : postponeGrooming(alasan)
+  GC -> DB : update status=Ditunda
+  GC --> Doctor : Rekomendasi pemeriksaan
+  GC --> UI : penundaan berhasil dicatat
+end
+@enduml

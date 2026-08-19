@@ -1,0 +1,48 @@
+@startuml
+skinparam shadowing false
+title Activity Diagram - Tagihan dan Pembayaran
+
+|Sistem|
+start
+:Menerima rincian layanan selesai;
+:Menghitung konsultasi, tindakan, obat, vaksin, grooming, dan tambahan;
+:Membuat tagihan berstatus "Belum Dibayar";
+
+|Admin / Resepsionis|
+:Memeriksa rincian tagihan;
+if (Rincian sudah benar?) then (Ya)
+  :Menyerahkan tagihan kepada pemilik;
+else (Tidak)
+  :Memperbaiki item tagihan;
+  |Sistem|
+  :Menghitung ulang total;
+  |Admin / Resepsionis|
+  :Menyerahkan tagihan yang diperbarui;
+endif
+
+|Pemilik Kelinci|
+:Memilih metode pembayaran;
+:Melakukan pembayaran;
+
+|Admin / Resepsionis|
+:Memverifikasi pembayaran;
+if (Pembayaran berhasil?) then (Ya)
+  :Mengonfirmasi pembayaran;
+  |Sistem|
+  :Mengubah status menjadi "Lunas";
+  :Menerbitkan bukti pembayaran;
+  |Pemilik Kelinci|
+  :Menerima bukti pembayaran;
+  stop
+else (Tidak)
+  :Menginformasikan pembayaran gagal / kurang;
+  |Pemilik Kelinci|
+  :Mengulangi atau mengganti metode pembayaran;
+  |Admin / Resepsionis|
+  :Memverifikasi ulang;
+  |Sistem|
+  :Mengubah status menjadi "Lunas" setelah valid;
+  :Menerbitkan bukti pembayaran;
+  stop
+endif
+@enduml
