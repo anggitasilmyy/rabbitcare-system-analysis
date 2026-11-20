@@ -1,6 +1,6 @@
 # RabbitCare Documentation
 
-This folder contains the original requirements and business analysis documents for the RabbitCare project. The PDF files are retained in their existing locations and are not rewritten as part of this repository overview update.
+This folder contains the original requirements and business analysis documents for the RabbitCare project, together with separately versioned refinement addenda. The original PDF files are retained in their existing locations and are not rewritten by the refinement process.
 
 ## Requirements Documents
 
@@ -17,6 +17,15 @@ This folder contains the original requirements and business analysis documents f
 |---|---|
 | [RabbitCare-Gap-Analysis.pdf](analysis/RabbitCare-Gap-Analysis.pdf) | As-is/to-be comparison, gap analysis, SWOT, Fishbone Analysis, and improvement recommendations. |
 
+## Refinement Addenda
+
+Refinement documents record decisions and changes separately from the original v1.0 baseline. They do not silently replace the source PDFs.
+
+- [Refinement index](refinement/README.md)
+- [BRD Refinement v1.1 - Markdown](refinement/BRD_Refinement_v1.1.md)
+- [BRD Refinement v1.1 - PDF](refinement/BRD_Refinement_v1.1.pdf)
+- [BRD Change Log v1.1](refinement/BRD_Change_Log_v1.1.md)
+
 ## Document Baseline
 
-The PDFs in this directory represent the original project documentation baseline (v1.0 / Draft where specified in the source documents). Their content is preserved as supplied. Subsequent refinements should be recorded in separate versioned documents or addenda so that the original baseline remains traceable.
+The PDFs in `requirements/` and `analysis/` represent the original project documentation baseline (v1.0 / Draft where specified in the source documents). Their content is preserved as supplied. Subsequent refinements are recorded in separate versioned documents so that the original baseline remains traceable.
