@@ -8,7 +8,7 @@ This folder contains the original requirements and business analysis documents f
 |---|---|
 | [RabbitCare-BRD.pdf](requirements/RabbitCare-BRD.pdf) | Business problems, objectives, stakeholders, business requirements, business rules, target process, assumptions, risks, and acceptance criteria. |
 | [RabbitCare-MRD.pdf](requirements/RabbitCare-MRD.pdf) | Product background, market problems, target segments, personas, jobs-to-be-done, value proposition, market needs, and product assumptions. |
-| [RabbitCare-PRD.pdf](requirements/RabbitCare-PRD.pdf) | Product overview, product goals, user roles, product scope, user journeys, feature requirements, acceptance criteria, MVP priorities, and release plan. |
+| [RabbitCare-PRD.pdf](requirements/RabbitCare-PRD.pdf) | Product vision and goals, product users and scope, user journeys, feature requirements, UX requirements, product states, analytics, MVP priorities, release plan, dependencies, and acceptance criteria. |
 | [RabbitCare-SRD.pdf](requirements/RabbitCare-SRD.pdf) | System context, logical architecture, functional and non-functional requirements, API requirements, data requirements, authorization matrix, transaction rules, and technical constraints. |
 
 ## Business Analysis
@@ -28,6 +28,9 @@ Refinement documents record decisions and changes separately from the original v
 - [MRD Refinement v1.1 - Markdown](refinement/MRD_Refinement_v1.1.md)
 - [MRD Refinement v1.1 - PDF](refinement/MRD_Refinement_v1.1.pdf)
 - [MRD Change Log v1.1](refinement/MRD_Change_Log_v1.1.md)
+- [PRD Refinement v1.1 - Markdown](refinement/PRD_Refinement_v1.1.md)
+- [PRD Refinement v1.1 - PDF](refinement/PRD_Refinement_v1.1.pdf)
+- [PRD Change Log v1.1](refinement/PRD_Change_Log_v1.1.md)
 
 ## Document Baseline
 
