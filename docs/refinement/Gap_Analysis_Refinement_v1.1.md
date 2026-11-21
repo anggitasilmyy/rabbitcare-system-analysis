@@ -35,24 +35,29 @@ This document is a refinement addendum, not evidence that the system has already
 
 ## 2. Confirmed Product Decisions
 
+
 ### 2.1 Owner-Submitted Booking with Admin Approval
 
-The owner uses the Owner Portal to submit a booking request by selecting a rabbit profile, service, preferred staff member (where applicable), date, and available time slot. The system validates the request and current slot availability, then stores the request with status `MENUNGGU_KONFIRMASI`. Submission does not mean the appointment is confirmed.
-
-An authorized clinic admin reviews the pending request and either approves or rejects it. Before approval, the system revalidates slot capacity to reduce double-booking risk. If the slot is no longer available, the system must not confirm the booking. The owner can view the latest booking status and the rejection reason when applicable.
+The Owner Portal allows rabbit owners to submit appointment requests through the application. Submitting a request does not mean that the appointment is automatically confirmed. An authorized clinic admin must review the request, check staff availability and service capacity, and approve or reject it.
 
 **Target flow**
 
-1. Owner logs in to the Owner Portal and selects a rabbit profile.
-2. Owner selects the service, preferred staff member (where applicable), date, and available time slot.
-3. Owner reviews and submits the booking request.
-4. System validates ownership, required fields, service rules, schedule, and current capacity.
-5. System stores the request as `MENUNGGU_KONFIRMASI` and returns a booking reference.
-6. Admin opens the review queue and checks the request details and clinic availability.
-7. If approved, the system revalidates capacity, records the admin decision, and changes the status to `TERKONFIRMASI`. If rejected, the admin must provide a rejection reason and the status becomes `DITOLAK`.
-8. The owner can view the decision and relevant status information in the Owner Portal; notification delivery follows the configured channel.
+1. Owner selects a rabbit profile, service, preferred date, and available time slot displayed through the Owner Portal.
+2. System validates the submitted information and performs an initial availability and capacity check.
+3. System generates a booking reference and stores the request with status `MENUNGGU_KONFIRMASI`.
+4. The pending request becomes available in the admin review queue.
+5. Admin reviews the request, staff schedule, and service capacity.
+6. Before approval, the system revalidates slot capacity to prevent overlapping confirmed bookings.
+7. If capacity is available, the admin approves the request and the status changes to `TERKONFIRMASI`.
+8. If the request is rejected, the status changes to `DITOLAK`, and the rejection reason, admin identity, and decision timestamp are recorded.
+9. The system notifies the owner about the submission and the final decision.
 
-This is the confirmed MVP booking model. Any separate workflow in which an admin enters a booking on behalf of an owner after a phone call, walk-in, or other offline request is not substituted for the Owner Portal flow and remains subject to stakeholder validation.
+The owner can submit a booking request but cannot directly confirm an appointment. The confirmation decision remains under authorized clinic admin control.
+
+Additional booking channels such as WhatsApp, telephone, or walk-in requests may be considered separately. Their integration into the RabbitCare workflow requires stakeholder validation.
+
+The pending-slot hold duration and expiry policy remain open decisions and must not be assumed as finalized business rules.
+
 
 ### 2.2 Booking, Visit, Invoice, and Payment Are Separate Lifecycles
 
@@ -128,7 +133,7 @@ The 18 original process areas are retained. The target state and priority are up
 |---:|---|---|---|---|---|
 | 1 | Owner registration | Owner data is recorded manually or through messages | Admin can register and maintain owner records in a centralized system | No consistent digital registration and duplicate-data control | High |
 | 2 | Rabbit profile | Rabbit data is spread across separate records | Each rabbit has a centralized profile and unique ID | Patient history is difficult to trace | Very High |
-| 3 | Booking | Requests arrive through WhatsApp, phone, or walk-in | Owner submits a request through the Owner Portal; the system stores it as `MENUNGGU_KONFIRMASI`; admin reviews and approves/rejects after capacity revalidation | No integrated self-service request, admin review queue, decision tracking, or capacity revalidation | Very High |
+| 3 | Booking | Requests arrive through WhatsApp, phone, or walk-in | Owners submit booking requests through the Owner Portal; admin reviews and approves/rejects requests after capacity revalidation | No structured request tracking, admin decision workflow, or capacity revalidation | Very High |
 | 4 | Staff scheduling | Doctor and groomer schedules are recorded manually | Admin views and maintains staff availability and service capacity | Schedule conflicts and double-booking risk | Very High |
 | 5 | Check-in | Arrival is recorded manually | Admin records arrival against a confirmed booking | Attendance status cannot be monitored consistently | High |
 | 6 | Queue | Queue is communicated verbally | System generates and tracks queue order after check-in | Service flow is difficult to monitor | High |
@@ -366,7 +371,7 @@ The original indicators are retained where relevant and adjusted to match owner-
 
 The following items are not specified by the original Gap Analysis or the two confirmed product decisions. They must be validated rather than assumed:
 
-1. Which schedule, staff, and service availability details should be visible to owners before they submit a booking request?
+1. Should the Owner Portal display only available dates and time slots, or also include staff names and detailed service availability?
 2. Which admin roles may approve, reject, cancel, or reschedule owner-submitted bookings?
 3. What approval SLA and escalation process should apply to pending requests?
 4. Are phone, walk-in, or other offline booking requests also accepted, and if so, should a separate admin-entry workflow be supported?
