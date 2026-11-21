@@ -1,26 +1,27 @@
 # RabbitCare - MRD Refinement Addendum v1.1
 
-**Tanggal refinement:** 20 November 2026  
+**Tanggal refinement:** 21 November 2026  
 **Dokumen sumber:** Market Requirements Document (MRD) RabbitCare v1.0  
 **Status:** Proposed refinement / Draft - pending stakeholder validation  
 **Jenis perubahan:** Addendum terhadap baseline, bukan penggantian dokumen asli
 
-## Ringkasan keputusan
+## Ringkasan Keputusan
 
 Dua keputusan arah produk menjadi dasar refinement ini:
 
-1. **Booking memerlukan persetujuan admin.** Pemilik tetap dapat mengajukan booking secara mandiri, tetapi booking belum terkonfirmasi sampai admin menyetujui atau menolaknya.
-2. **Payment gateway termasuk dalam MVP.** Pemilik dapat membayar invoice melalui integrasi payment gateway; status transaksi dan bukti pembayaran tersedia berdasarkan hasil transaksi yang telah diverifikasi sistem.
+1. **Owner-submitted booking requires admin approval.** Pemilik tetap dapat mengajukan booking, tetapi permintaan tersebut belum berstatus terkonfirmasi sampai admin meninjau dan menyetujui atau menolaknya. Booking yang dibuat admin atas nama pemilik mengikuti aturan terpisah yang masih memerlukan validasi stakeholder.
 
-MRD v1.0 tetap dipertahankan tanpa perubahan. Addendum ini memperbarui bagian yang terdampak dan tidak menyatakan bahwa asumsi pasar atau keputusan operasional telah divalidasi oleh calon pengguna/klinik.
+2. **Payment gateway termasuk dalam MVP.** Pemilik dapat membayar invoice melalui integrasi payment gateway. Status transaksi dan bukti pembayaran tersedia berdasarkan hasil transaksi yang telah diverifikasi sistem.
 
-## 1. Tujuan dan cara membaca addendum
+MRD v1.0 tetap dipertahankan tanpa perubahan. Addendum ini memperbarui bagian yang terdampak dan tidak menyatakan bahwa asumsi pasar atau keputusan operasional telah divalidasi oleh calon pengguna atau pihak klinik.
+
+## 1. Tujuan dan Cara Membaca Addendum
 
 Addendum ini menyelaraskan kebutuhan pasar, ruang lingkup produk, pengalaman pengguna, prioritas fitur, dan strategi peluncuran RabbitCare dengan keputusan terbaru mengenai booking dan pembayaran.
 
 Gunakan MRD v1.0 sebagai baseline. Untuk bagian yang secara eksplisit dibahas di addendum ini, rumusan v1.1 menjadi usulan terbaru untuk validasi. Bagian lain yang tidak disebutkan tetap mengikuti MRD v1.0.
 
-## 2. Ringkasan perubahan terhadap MRD v1.0
+## 2. Ringkasan Perubahan terhadap MRD v1.0
 
 | Bagian MRD v1.0 | Baseline | Refinement v1.1 |
 |---|---|---|
@@ -30,44 +31,48 @@ Gunakan MRD v1.0 sebagai baseline. Untuk bagian yang secara eksplisit dibahas di
 | 14.1 Owner Module | Pemilik dapat booking, melihat status, tagihan, dan menerima reminder. | Ditambahkan visibilitas hasil keputusan admin dan pembayaran invoice melalui gateway. |
 | 14.1 Admin Module | Admin mengelola jadwal, konfirmasi booking, tagihan, dan konfirmasi pembayaran. | Diperjelas menjadi approval/rejection booking dan pemantauan transaksi gateway. |
 | 14.2 Out of Scope | Integrasi penuh payment gateway berada di luar tahap awal. | Integrasi payment gateway dipindahkan ke ruang lingkup MVP. |
-| 15 MR-04 dan MR-15 | Booking mandiri; admin mengonfirmasi pembayaran. | Booking mandiri tetap tersedia dengan approval admin; peran admin pada pembayaran gateway berubah menjadi pemantauan dan penanganan pengecualian. |
-| 16 MoSCoW | Pembayaran Must Have; bukti pembayaran digital Should Have. | Integrasi gateway dan bukti pembayaran digital menjadi Must Have. |
+| 15. MR-04 dan MR-15 | Booking mandiri; admin mengonfirmasi pembayaran. | Booking yang diajukan pemilik tetap tersedia dengan approval admin; peran admin pada pembayaran gateway berubah menjadi pemantauan dan penanganan pengecualian. |
+| 16. MoSCoW | Pembayaran Must Have; bukti pembayaran digital Should Have. | Integrasi gateway dan bukti pembayaran digital menjadi Must Have. |
 | 17.2 Booking Journey | Booking disimpan, nomor booking dibuat, konfirmasi dikirim. | Ditambahkan status menunggu keputusan admin, approval/rejection, dan notifikasi hasil keputusan. |
 | 17.5 Payment Journey | Pemilik memilih metode, pembayaran diproses, status diperbarui, bukti diterbitkan. | Alur secara eksplisit menggunakan gateway dan hasil transaksi terverifikasi. |
+| 20. User Access Rights | Owner tidak memiliki hak mengelola pembayaran; admin mengelola pembayaran. | Hak owner untuk memulai pembayaran gateway dan hak admin untuk memantau transaksi diperjelas. |
 | 22. Success Metrics | Target seluruh pembayaran layanan memiliki bukti transaksi. | Kriteria tersebut dipertahankan dan dikaitkan dengan referensi transaksi gateway. |
 | 27. Product Launch | Pembayaran digital dikembangkan setelah MVP. | Integrasi payment gateway dipindahkan ke MVP; pengembangan lanjutan tetap dapat mencakup fitur pembayaran yang belum diputuskan. |
+| 28. Market Acceptance Criteria | Kriteria penerimaan booking dan pembayaran masih bersifat umum. | Ditambahkan kriteria untuk admin booking approval dan verifikasi transaksi gateway. |
 | 29. Market Validation | Menanyakan apakah klinik membutuhkan pembayaran digital. | Validasi diarahkan pada provider, metode, biaya, alternatif tunai/manual, dan penanganan transaksi. |
 
-## 3. Penyesuaian persona dan Jobs to Be Done
+## 3. Penyesuaian Persona dan Jobs to Be Done
 
-### 3.1 Pemilik kelinci
+### 3.1 Pemilik Kelinci
 
 Kebutuhan persona pemilik tetap mengikuti MRD v1.0: profil kelinci, booking, reminder, riwayat kesehatan, dan informasi tagihan.
 
 Kebutuhan yang diperjelas:
+
 - Mengetahui bahwa booking telah diterima sebagai permintaan, bukan langsung dianggap terkonfirmasi.
 - Melihat status keputusan admin dan informasi penolakan jika booking ditolak.
 - Membayar invoice melalui payment gateway.
 - Melihat status transaksi dan bukti pembayaran setelah transaksi berhasil.
 
-### 3.2 Admin klinik
+### 3.2 Admin Klinik
 
 Kebutuhan admin diperluas dari dashboard booking, check-in, antrean, dan pembayaran menjadi:
+
 - Meninjau permintaan booking yang diajukan pemilik.
 - Menyetujui atau menolak booking dan menyampaikan hasilnya.
 - Mengelola jadwal dan proses check-in/antrean seperti yang telah ditetapkan pada MRD v1.0.
 - Memantau status transaksi gateway dan menindaklanjuti transaksi yang memerlukan perhatian.
 - Tidak menetapkan pembayaran gateway sebagai berhasil hanya berdasarkan klaim atau bukti yang dikirim pemilik; status sukses mengikuti hasil provider yang diverifikasi sistem.
 
-### 3.3 Jobs to Be Done yang diperbarui
+### 3.3 Jobs to Be Done yang Diperbarui
 
 **Pemilik kelinci:** Ketika ingin menjadwalkan layanan, pemilik ingin mengajukan booking dan mengetahui hasil persetujuan admin agar dapat memperoleh kepastian jadwal. Ketika menerima invoice, pemilik ingin membayar melalui gateway dan melihat status serta bukti transaksi.
 
 **Admin klinik:** Ketika menerima permintaan booking, admin ingin meninjau ketersediaan dan kebutuhan layanan lalu menyetujui atau menolak permintaan agar jadwal klinik tetap terkelola. Ketika pembayaran dilakukan melalui gateway, admin ingin memantau status transaksi dan menangani pengecualian.
 
-## 4. Penyesuaian ruang lingkup produk
+## 4. Penyesuaian Ruang Lingkup Produk
 
-### 4.1 Modul Pemilik - termasuk MVP
+### 4.1 Modul Pemilik - Termasuk MVP
 
 - Registrasi dan login.
 - Pengelolaan profil pemilik dan beberapa profil kelinci.
@@ -80,21 +85,22 @@ Kebutuhan admin diperluas dari dashboard booking, check-in, antrean, dan pembaya
 - Melihat status transaksi dan bukti pembayaran setelah transaksi berhasil.
 - Menerima reminder.
 
-### 4.2 Modul Admin - termasuk MVP
+### 4.2 Modul Admin - Termasuk MVP
 
 - Login admin.
 - Pengelolaan data pemilik dan pasien kelinci.
 - Pengelolaan jadwal dokter dan groomer.
-- Meninjau, menyetujui, atau menolak booking.
+- Meninjau, menyetujui, atau menolak booking yang diajukan pemilik.
 - Melihat dan mengelola check-in serta antrean.
 - Mengelola tagihan dan invoice.
 - Memantau status transaksi payment gateway dan menangani pengecualian operasional.
 
-### 4.3 Penyesuaian batasan tahap awal
+### 4.3 Penyesuaian Batasan Tahap Awal
 
 Pernyataan "integrasi penuh dengan payment gateway" pada bagian 14.2 MRD v1.0 tidak lagi menjadi item di luar ruang lingkup tahap awal. Integrasi gateway untuk pembayaran invoice merupakan bagian MVP sesuai keputusan produk.
 
 Hal-hal berikut belum ditetapkan sebagai bagian MVP dan memerlukan keputusan terpisah:
+
 - Provider gateway tertentu dan penggunaan lebih dari satu provider.
 - Pembayaran deposit atau pembayaran sebelum layanan.
 - Pembayaran parsial.
@@ -104,7 +110,22 @@ Hal-hal berikut belum ditetapkan sebagai bagian MVP dan memerlukan keputusan ter
 
 Daftar ini adalah batas keputusan yang belum ditetapkan, bukan hasil validasi pasar.
 
-## 5. Kebutuhan pasar yang diperbarui
+### 4.4 Klarifikasi Hak Akses Pengguna
+
+Matriks hak akses pada bagian 20 MRD v1.0 dilengkapi dengan hak akses tambahan berikut:
+
+| Role | Additional Permissions |
+|---|---|
+| Owner | Mengajukan permintaan booking, melihat keputusan booking, melihat invoice milik sendiri, memulai pembayaran melalui gateway, serta mengakses status transaksi terverifikasi dan bukti pembayaran. |
+| Admin | Meninjau, menyetujui, atau menolak booking yang diajukan pemilik; mengelola invoice; memantau transaksi gateway; dan menangani pengecualian operasional. |
+
+Booking yang dibuat admin atas nama pemilik mengikuti aturan tersendiri yang masih memerlukan validasi stakeholder.
+
+Hak akses yang telah ditetapkan untuk dokter, groomer, dan manajer tetap mengikuti matriks pada MRD v1.0.
+
+Pembayaran gateway harus diverifikasi oleh sistem berdasarkan hasil dari provider. Admin tidak dapat menetapkan transaksi gateway sebagai berhasil hanya berdasarkan klaim pemilik atau bukti pembayaran yang dikirimkan secara manual.
+
+## 5. Kebutuhan Pasar yang Diperbarui
 
 MR-01 sampai MR-20 tetap menjadi baseline. Kebutuhan berikut ditambahkan untuk mencerminkan keputusan terbaru.
 
@@ -121,11 +142,12 @@ MR-01 sampai MR-20 tetap menjadi baseline. Kebutuhan berikut ditambahkan untuk m
 
 MR-19 tentang penyimpanan status booking secara terstruktur tetap berlaku dan perlu mencakup status keputusan admin.
 
-## 6. Penyesuaian prioritas fitur (MoSCoW)
+## 6. Penyesuaian Prioritas Fitur (MoSCoW)
 
-### 6.1 Must Have - penyesuaian
+### 6.1 Must Have - Penyesuaian
 
 Tambahan atau penegasan Must Have:
+
 - Pengajuan booking oleh pemilik.
 - Review, approval, dan rejection booking oleh admin.
 - Tampilan status keputusan booking bagi pemilik.
@@ -135,9 +157,10 @@ Tambahan atau penegasan Must Have:
 
 Fitur Must Have lain pada MRD v1.0 tetap berlaku.
 
-### 6.2 Should Have - tetap atau ditinjau
+### 6.2 Should Have - Tetap atau Ditinjau
 
 Fitur berikut tetap mengikuti baseline MRD v1.0:
+
 - Rujukan groomer ke dokter.
 - Reschedule booking.
 - Pembatalan booking.
@@ -150,11 +173,13 @@ Pengiriman bukti pembayaran digital dipindahkan dari Should Have ke Must Have un
 
 ### 6.3 Could Have dan Won't Have
 
-Kategori Could Have dan Won't Have lain tetap mengikuti MRD v1.0. Fitur lanjutan pembayaran seperti deposit, pembayaran parsial, refund otomatis, atau multi-provider tidak otomatis masuk MVP; fitur tersebut memerlukan keputusan dan validasi terpisah.
+Kategori Could Have dan Won't Have lain tetap mengikuti MRD v1.0.
 
-## 7. User journey yang diperbarui
+Fitur lanjutan pembayaran seperti deposit, pembayaran parsial, refund otomatis, atau multi-provider tidak otomatis masuk MVP. Fitur tersebut memerlukan keputusan dan validasi terpisah.
 
-### 7.1 Alur booking
+## 7. User Journey yang Diperbarui
+
+### 7.1 Alur Booking
 
 1. Pemilik memilih profil kelinci.
 2. Pemilik memilih layanan.
@@ -171,7 +196,7 @@ Kategori Could Have dan Won't Have lain tetap mengikuti MRD v1.0. Fitur lanjutan
 
 **Catatan:** MRD v1.0 telah menyebut penguncian slot pada alur booking. Kebijakan berapa lama slot ditahan selama menunggu admin, serta kapan slot dilepaskan, masih perlu divalidasi dengan klinik. Booking yang dibuat admin atas nama pemilik juga memerlukan aturan tersendiri.
 
-### 7.2 Alur pembayaran
+### 7.2 Alur Pembayaran
 
 1. Admin membuka dan memeriksa tagihan sesuai proses klinik.
 2. Invoice tersedia bagi pemilik.
@@ -185,11 +210,12 @@ Kategori Could Have dan Won't Have lain tetap mengikuti MRD v1.0. Fitur lanjutan
 
 Transaksi gagal atau masih menunggu tidak boleh ditampilkan sebagai pembayaran berhasil. Detail status, retry, dan rekonsiliasi perlu dijabarkan pada PRD/SRD.
 
-## 8. Penyesuaian indikator keberhasilan
+## 8. Penyesuaian Indikator Keberhasilan
 
 Indikator adopsi, penggunaan, operasional, dan retensi pada MRD v1.0 tetap berlaku.
 
 Indikator tambahan yang dapat diamati:
+
 - Jumlah dan proporsi booking yang menunggu keputusan admin.
 - Waktu antara pengajuan booking dan keputusan admin.
 - Jumlah booking yang disetujui dan ditolak.
@@ -198,41 +224,73 @@ Indikator tambahan yang dapat diamati:
 
 Target numerik baru tidak ditetapkan dalam addendum ini. Target awal pada MRD v1.0 tetap merupakan hipotesis produk yang perlu disesuaikan setelah pilot, bukan hasil pengukuran aktual.
 
-## 9. Penyesuaian strategi peluncuran produk
+Target awal MRD v1.0 bahwa seluruh pembayaran layanan memiliki bukti transaksi tetap dipertahankan sebagai hipotesis produk.
+
+Untuk transaksi gateway yang berhasil, bukti pembayaran harus mencakup referensi transaksi provider yang telah diverifikasi dan bukti pembayaran yang diterbitkan sistem.
+
+Apabila pembayaran tunai atau manual disetujui sebagai metode alternatif, bukti transaksi dan prosedur pencatatannya harus divalidasi secara terpisah.
+
+### 8.1 Kriteria Penerimaan Pasar Awal yang Diperbarui
+
+Kriteria penerimaan pasar pada bagian 28 MRD v1.0 dilengkapi dengan kondisi berikut:
+
+1. Booking yang diajukan pemilik tetap berstatus menunggu sampai ditinjau oleh admin.
+2. Admin dapat menyetujui atau menolak booking yang diajukan pemilik.
+3. Pemilik dapat melihat hasil keputusan admin dan status booking terkait.
+4. Pemilik dapat mengakses invoice dan memulai pembayaran melalui payment gateway yang terintegrasi.
+5. Transaksi gateway yang masih pending atau gagal tidak boleh ditampilkan sebagai pembayaran berhasil.
+6. Transaksi gateway yang berhasil harus memiliki referensi transaksi terverifikasi dan bukti pembayaran yang diterbitkan sistem.
+7. Admin dapat memantau status transaksi gateway dan mengidentifikasi transaksi yang memerlukan tindak lanjut operasional.
+
+Kriteria ini tetap memerlukan validasi stakeholder dan pengujian pada tahap pilot.
+
+## 9. Penyesuaian Strategi Peluncuran Produk
 
 ### Tahap 1 - Validasi Internal
-Tetap mencakup validasi alur dengan pemilik klinik, dokter, pet care staff, dan admin. Validasi tambahan:
+
+Tetap mencakup validasi alur dengan pemilik klinik, dokter, pet care staff, dan admin.
+
+Validasi tambahan:
+
 - Proses persetujuan dan penolakan booking.
 - Provider gateway dan metode pembayaran yang dibutuhkan.
 - Penanganan transaksi pending, gagal, dan notifikasi provider yang terlambat.
 
 ### Tahap 2 - Prototype
-Prototype booking perlu memperlihatkan status menunggu persetujuan, hasil persetujuan, dan hasil penolakan. Prototype pembayaran perlu memperlihatkan pemilihan gateway, status transaksi, dan bukti pembayaran.
+
+Prototype booking perlu memperlihatkan status menunggu persetujuan, hasil persetujuan, dan hasil penolakan.
+
+Prototype pembayaran perlu memperlihatkan pemilihan gateway, status transaksi, dan bukti pembayaran.
 
 ### Tahap 3 - Minimum Viable Product
+
 MVP mencakup fitur baseline yang telah ditetapkan pada MRD v1.0, ditambah:
+
 - Approval/rejection booking oleh admin.
 - Integrasi payment gateway untuk pembayaran invoice.
 - Pemantauan status transaksi dan bukti pembayaran digital.
 
 ### Tahap 4 - Pilot Testing
+
 Pilot perlu menguji alur booking dari pengajuan sampai keputusan admin serta alur pembayaran gateway dari inisiasi sampai status transaksi dan bukti pembayaran.
 
 ### Tahap 5 - Evaluasi dan Pengembangan
+
 Pengembangan lanjutan dapat mencakup reschedule, pembatalan, laporan yang lebih lengkap, ekspansi cabang, dan fitur pembayaran tambahan setelah kebutuhan divalidasi.
 
-## 10. Dependensi, risiko, dan validasi pasar
+## 10. Dependensi, Risiko, dan Validasi Pasar
 
-### 10.1 Dependensi tambahan
+### 10.1 Dependensi Tambahan
+
 - Klinik memilih provider gateway dan menyediakan akun merchant serta akses integrasi.
 - Provider mendukung metode pembayaran yang dibutuhkan dan mekanisme status transaksi yang dapat diverifikasi.
 - Klinik memiliki koneksi internet yang memadai.
 - Admin memiliki proses dan kapasitas untuk meninjau booking.
 - Pemilik memiliki akses ke metode pembayaran yang didukung provider.
 
-### 10.2 Risiko tambahan
+### 10.2 Risiko Tambahan
 
-| Risiko | Dampak | Area validasi/mitigasi |
+| Risiko | Dampak | Area Validasi/Mitigasi |
 |---|---|---|
 | Admin terlambat meninjau booking | Pemilik belum mendapat kepastian jadwal. | Tentukan SLA review dan eskalasi. |
 | Slot tertahan terlalu lama | Ketersediaan jadwal berkurang. | Validasi aturan hold dan expiry slot. |
@@ -240,7 +298,8 @@ Pengembangan lanjutan dapat mencakup reschedule, pembatalan, laporan yang lebih 
 | Status provider terlambat diterima | Status di sistem belum mutakhir. | Tentukan monitoring dan rekonsiliasi. |
 | Metode gateway tidak sesuai kebutuhan pemilik | Adopsi pembayaran digital rendah. | Validasi preferensi metode dan akses pengguna. |
 
-### 10.3 Pertanyaan validasi pasar yang diperbarui
+### 10.3 Pertanyaan Validasi Pasar yang Diperbarui
+
 1. Provider payment gateway apa yang dapat digunakan oleh klinik?
 2. Metode pembayaran apa yang paling dibutuhkan pemilik?
 3. Apakah klinik tetap akan menerima pembayaran tunai/manual sebagai alternatif?
@@ -249,9 +308,10 @@ Pengembangan lanjutan dapat mencakup reschedule, pembatalan, laporan yang lebih 
 6. Berapa lama admin dapat memberikan keputusan booking?
 7. Bagaimana kebijakan slot jika booking belum ditinjau admin?
 
-## 11. Keputusan yang masih terbuka
+## 11. Keputusan yang Masih Terbuka
 
 Sebelum MRD dianggap disetujui stakeholder, hal berikut perlu divalidasi:
+
 - Provider gateway, metode pembayaran, biaya, dan proses settlement.
 - Ketersediaan pembayaran tunai/manual sebagai alternatif.
 - SLA admin untuk approval booking.
@@ -260,18 +320,22 @@ Sebelum MRD dianggap disetujui stakeholder, hal berikut perlu divalidasi:
 - Refund, pembayaran parsial/deposit, dan penanganan transaksi pending/gagal.
 - Kebutuhan retry dan rekonsiliasi transaksi.
 
-## 12. Keterlacakan terhadap dokumen dan proses lain
+## 12. Keterlacakan terhadap Dokumen dan Proses Lain
 
-| Area MRD | Dokumen/proses terkait |
+| Area MRD | Dokumen/Proses Terkait |
 |---|---|
 | MR-04, MR-19, MR-21 | BRD booking requirements dan booking business rules |
 | MR-15, MR-22, MR-23 | BRD billing/payment requirements |
 | Booking user journey | PRD booking flow dan SRD booking workflow |
 | Payment user journey | PRD billing/payment flow dan SRD gateway integration |
 | MVP scope | PRD release plan dan SRD functional requirements |
+| User access rights | BRD business rules dan SRD authorization matrix |
+| Market acceptance criteria | PRD acceptance criteria dan SRD system acceptance criteria |
 
-## 13. Status dokumen
+## 13. Status Dokumen
 
 MRD v1.0 tetap menjadi baseline sumber dan tidak diubah. Addendum v1.1 merupakan usulan refinement untuk menyelaraskan kebutuhan pasar dan pengalaman pengguna dengan keputusan booking admin approval serta payment gateway pada MVP.
 
-**Status akhir:** Proposed refinement / Draft - pending stakeholder validation. Dokumen ini belum merupakan hasil validasi pasar atau persetujuan resmi pihak klinik.
+**Status akhir:** Proposed refinement / Draft - pending stakeholder validation.
+
+Dokumen ini belum merupakan hasil validasi pasar atau persetujuan resmi pihak klinik.
