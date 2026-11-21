@@ -8,7 +8,7 @@
 
 ## Ringkasan keputusan produk
 
-Addendum ini menerjemahkan dua keputusan produk yang telah disepakati ke dalam kebutuhan dan perilaku produk:
+Addendum ini menerjemahkan dua keputusan produk yang menjadi dasar refinement dan masih menunggu validasi stakeholder:
 
 1. **Booking memerlukan keputusan admin.** Pemilik tetap dapat mengajukan booking melalui Owner Portal. Pengajuan tidak langsung menjadi booking terkonfirmasi; admin klinik harus menyetujui atau menolak permintaan tersebut.
 2. **Payment gateway termasuk dalam MVP.** Pemilik membayar invoice melalui payment gateway yang dikonfigurasi. Status pembayaran dan bukti transaksi hanya diperbarui/diterbitkan setelah hasil transaksi dari provider diverifikasi sistem.
@@ -30,7 +30,7 @@ Gunakan PRD v1.0 sebagai sumber baseline. Jika bagian dalam addendum ini memperj
 | 7 Product Scope | Owner booking; Clinic Portal mengelola booking, billing, dan payment. | Owner melihat status keputusan; admin approve/reject; owner membayar invoice via gateway; admin memantau transaksi. |
 | 8.2 Booking Journey | Booking dibuat dan konfirmasi dikirim. | Pengajuan menjadi `MENUNGGU_KONFIRMASI`, lalu admin approve atau reject. |
 | 8.5 Payment Journey | Metode dipilih, pembayaran diproses, status diperbarui, bukti diterbitkan. | Pembayaran menggunakan gateway; hasil provider diverifikasi sebelum status PAID dan receipt diterbitkan. |
-| 9.3 PR-13 dan PR-15 | Pemilik membuat booking; admin mengonfirmasi booking. | Diperjelas sebagai request dan keputusan admin; acceptance criteria rejection ditambahkan. |
+| 9.3 PR-13, PR-14, dan PR-15 | Booking diperjelas sebagai pengajuan dan admin dapat approve/reject; aturan double booking diselaraskan dengan proses approval. |
 | 9.8 PR-43 sampai PR-45 | Admin mencatat pembayaran; receipt diterbitkan; booking berubah menjadi lunas. | Diselaraskan dengan gateway; receipt mengikuti transaksi terverifikasi; payment state dipisahkan dari booking lifecycle. |
 | 11 UX Requirements | Label status booking konsisten; pesan error menyebut penyebab dan tindakan. | Ditambahkan tampilan status menunggu keputusan/ditolak dan status transaksi gateway. |
 | 12 Product States | Daftar status booking juga memuat `BELUM_DIBAYAR` dan `LUNAS`; payment punya status sendiri. | Status booking dan payment dipisahkan agar tidak mencampur dua lifecycle. |
@@ -57,7 +57,7 @@ Tambahan perilaku produk:
 - Pemilik dapat mengirim pengajuan booking.
 - Pemilik dapat melihat bahwa pengajuan sedang menunggu keputusan admin.
 - Pemilik dapat melihat hasil persetujuan atau penolakan.
-- Jika ditolak, pemilik dapat melihat alasan penolakan apabila alasan tersebut dicatat admin.
+- Jika booking ditolak, pemilik dapat melihat alasan penolakan yang wajib dicatat oleh admin.
 - Pemilik dapat membuka invoice dan memulai pembayaran melalui payment gateway.
 - Pemilik dapat melihat status transaksi dan bukti pembayaran setelah transaksi berhasil diverifikasi.
 
@@ -121,7 +121,9 @@ Addendum ini tidak memilih provider gateway tertentu dan tidak menetapkan metode
 11. Jika disetujui, status booking menjadi `TERKONFIRMASI`; pemilik menerima notifikasi.
 12. Jika ditolak, status booking menjadi `DITOLAK`; alasan penolakan disimpan dan pemilik menerima notifikasi.
 
-**Aturan slot masih terbuka:** Sistem harus mencegah dua booking terkonfirmasi pada slot yang sama. Kebijakan apakah permintaan `MENUNGGU_KONFIRMASI` langsung menahan slot, batas waktu penahanan, dan pelepasan slot setelah rejection/expiry harus ditetapkan bersama stakeholder sebelum implementasi final.
+**Aturan ketersediaan slot:** Sistem tidak boleh memiliki lebih dari satu booking berstatus `TERKONFIRMASI` pada slot yang sama. Saat admin menyetujui pengajuan, sistem harus memvalidasi ulang ketersediaan slot. Jika slot sudah digunakan oleh booking terkonfirmasi lain, proses approval tidak dapat dilanjutkan dan admin menerima informasi bahwa slot tidak lagi tersedia.
+
+Perlakuan terhadap pengajuan berstatus `MENUNGGU_KONFIRMASI`, termasuk apakah pengajuan menahan slot, durasi penahanan, dan waktu expiry, harus ditetapkan bersama stakeholder sebelum implementasi final.
 
 ### 5.2 Pembayaran invoice melalui payment gateway
 
@@ -145,6 +147,7 @@ Redirect kembali ke aplikasi tidak boleh menjadi satu-satunya dasar untuk meneta
 | ID | Rumusan baseline | Rumusan refinement / acceptance criteria |
 |---|---|---|
 | PR-13 | Pemilik dapat membuat booking. | Pemilik dapat mengirim pengajuan booking. Sistem menghasilkan kode unik dan status awal `MENUNGGU_KONFIRMASI`; pengajuan belum dianggap terkonfirmasi. |
+| PR-14 | Sistem mencegah double booking. | Sistem tidak mengizinkan lebih dari satu booking berstatus `TERKONFIRMASI` pada slot yang sama. Ketersediaan slot divalidasi ulang sebelum approval admin. |
 | PR-15 | Admin dapat mengonfirmasi booking. | Admin dapat menyetujui atau menolak pengajuan. Approval mengubah status menjadi `TERKONFIRMASI`; rejection mengubah status menjadi `DITOLAK` dan mensyaratkan alasan penolakan. |
 | PR-43 | Admin dapat mencatat pembayaran. | Admin dapat memantau status pembayaran gateway dan referensi transaksi. Penetapan pembayaran sukses mengikuti hasil provider yang telah diverifikasi sistem. Pencatatan pembayaran manual belum ditetapkan sebagai jalur MVP. |
 | PR-44 | Sistem menerbitkan bukti pembayaran. | Sistem menerbitkan bukti pembayaran setelah status transaksi `PAID` terverifikasi. Bukti memiliki nomor/referensi transaksi unik dan terhubung ke invoice. |
@@ -158,8 +161,8 @@ PR-56 sampai PR-65 ditambahkan setelah requirement terakhir pada PRD v1.0 (PR-55
 |---|---|---|
 | PR-56 | Admin dapat meninjau pengajuan booking dan mengambil keputusan approve atau reject. | Daftar pengajuan menunggu tampil bagi admin berwenang; keputusan tersimpan dan status berubah sesuai hasil. |
 | PR-57 | Sistem menyimpan detail keputusan booking. | Waktu keputusan dan identitas admin tersimpan; alasan wajib diisi saat reject. |
-| PR-58 | Pemilik dapat melihat status dan hasil keputusan booking. | Owner Portal menampilkan `MENUNGGU_KONFIRMASI`, `TERKONFIRMASI`, atau `DITOLAK`; alasan penolakan ditampilkan jika dicatat. |
-| PR-59 | Sistem mencegah lebih dari satu booking terkonfirmasi pada slot yang sama. | Dua permintaan tidak dapat sama-sama disetujui pada slot yang sama; aturan hold/expiry untuk status menunggu mengikuti kebijakan klinik yang ditetapkan. |
+| PR-58 | Pemilik dapat melihat status dan hasil keputusan booking. | Owner Portal menampilkan `MENUNGGU_KONFIRMASI`, `TERKONFIRMASI`, atau `DITOLAK`. Jika booking ditolak, alasan penolakan yang dicatat admin wajib ditampilkan kepada pemilik. |
+| PR-59 | Sistem memvalidasi ulang ketersediaan slot ketika admin menyetujui pengajuan booking. | Approval tidak dapat dilanjutkan jika slot sudah memiliki booking berstatus `TERKONFIRMASI`. Perlakuan terhadap pengajuan `MENUNGGU_KONFIRMASI`, termasuk slot hold dan expiry, mengikuti kebijakan klinik yang ditetapkan. |
 | PR-60 | Pemilik dapat memulai pembayaran invoice melalui payment gateway yang dikonfigurasi. | Sistem membuat alur pembayaran untuk invoice yang dapat dibayar dan menghubungkan transaksi dengan invoice yang benar. |
 | PR-61 | Sistem menyimpan referensi unik untuk setiap percobaan pembayaran gateway. | Referensi transaksi dapat ditelusuri ke invoice dan percobaan pembayaran terkait; nilai invoice yang dibayar dapat diverifikasi. |
 | PR-62 | Sistem memperbarui status pembayaran berdasarkan hasil gateway yang diverifikasi. | Status pending/failed tidak ditampilkan sebagai paid; redirect browser saja tidak menetapkan pembayaran berhasil. |
@@ -197,7 +200,22 @@ Status pembayaran pada PRD v1.0 tetap dipertahankan:
 
 `REFUNDED` dipertahankan sebagai status yang telah tercantum pada baseline, tetapi kemampuan refund dan otomasi refund belum otomatis menjadi bagian MVP. Proses refund perlu keputusan dan requirement tersendiri.
 
-`BELUM_DIBAYAR` dan `LUNAS` sebaiknya menjadi ringkasan status invoice, bukan status lifecycle booking. Pemetaan status invoice dan pembayaran secara rinci perlu dijelaskan pada SRD.
+### 7.3 Invoice status
+
+Status invoice dipisahkan dari booking lifecycle dan payment transaction lifecycle.
+
+| Status | Makna |
+|---|---|
+| `BELUM_DIBAYAR` | Invoice belum dinyatakan lunas karena belum terdapat pembayaran terverifikasi yang memenuhi total tagihan. |
+| `LUNAS` | Total invoice telah dipenuhi oleh pembayaran berhasil yang diverifikasi sistem. |
+
+Status invoice merupakan ringkasan kondisi tagihan, sedangkan status payment menunjukkan kondisi setiap percobaan transaksi.
+
+Dalam refinement MVP ini, alur pembayaran mengasumsikan pembayaran penuh untuk satu invoice. Pembayaran parsial belum ditetapkan sebagai bagian MVP.
+
+Status `REFUNDED` pada payment transaction tidak secara otomatis mengubah status invoice. Dampak refund terhadap saldo dan status invoice memerlukan keputusan serta requirement tersendiri.
+
+Perubahan status invoice maupun payment tidak mengubah booking lifecycle.
 
 ## 8. UX requirements yang diperbarui
 
@@ -258,14 +276,21 @@ Susunan ini merupakan penjelasan navigasi produk yang diusulkan; label final dap
 
 ### 10.1 Event analytics tambahan
 
-Event pada PRD v1.0 tetap dipertahankan. Tambahkan:
-- `booking_submitted`
+Event pada PRD v1.0 tetap dipertahankan dengan penjelasan bahwa:
+
+- `booking_created` dicatat ketika sistem berhasil membuat record booking setelah pengajuan diterima.
+- Event `booking_created` tidak perlu diduplikasi dengan `booking_submitted` untuk aktivitas pengajuan yang sama.
+- `payment_completed` hanya dicatat untuk transaksi yang berhasil dan telah diverifikasi sistem.
+
+Tambahkan event berikut:
+
 - `booking_approved`
 - `booking_rejected`
 - `payment_initiated`
 - `payment_status_updated`
 - `payment_failed`
-- `payment_completed` (dipertahankan; hanya dicatat untuk transaksi berhasil yang terverifikasi)
+
+Event booking approval dan rejection digunakan untuk mengukur proses pengambilan keputusan admin. Event payment digunakan untuk memantau inisiasi, perubahan status, dan hasil transaksi gateway.
 
 ### 10.2 Success metrics tambahan
 
