@@ -22,22 +22,42 @@ This folder contains the original RabbitCare requirements and business analysis 
 Refinement documents record decisions and changes separately from the original v1.0 baseline. They do not silently replace the source PDFs.
 
 - [Refinement index](refinement/README.md)
+
+### Business Requirements
+
 - [BRD Refinement v1.1 - Markdown](refinement/BRD_Refinement_v1.1.md)
 - [BRD Refinement v1.1 - PDF](refinement/BRD_Refinement_v1.1.pdf)
 - [BRD Change Log v1.1](refinement/BRD_Change_Log_v1.1.md)
+
+### Market Requirements
+
 - [MRD Refinement v1.1 - Markdown](refinement/MRD_Refinement_v1.1.md)
 - [MRD Refinement v1.1 - PDF](refinement/MRD_Refinement_v1.1.pdf)
 - [MRD Change Log v1.1](refinement/MRD_Change_Log_v1.1.md)
+
+### Product Requirements
+
 - [PRD Refinement v1.1 - Markdown](refinement/PRD_Refinement_v1.1.md)
 - [PRD Refinement v1.1 - PDF](refinement/PRD_Refinement_v1.1.pdf)
 - [PRD Change Log v1.1](refinement/PRD_Change_Log_v1.1.md)
+
+### System Requirements
+
 - [SRD Refinement v1.1 - Markdown](refinement/SRD_Refinement_v1.1.md)
 - [SRD Refinement v1.1 - PDF](refinement/SRD_Refinement_v1.1.pdf)
 - [SRD Change Log v1.1](refinement/SRD_Change_Log_v1.1.md)
 
+### Gap Analysis
+
+- [Gap Analysis Refinement v1.1 - Markdown](refinement/Gap_Analysis_Refinement_v1.1.md)
+- [Gap Analysis Refinement v1.1 - PDF](refinement/Gap_Analysis_Refinement_v1.1.pdf)
+- [Gap Analysis Change Log v1.1](refinement/Gap_Analysis_Change_Log_v1.1.md)
+
 ## UML / PlantUML
 
-Refined technical diagrams are stored separately from the original baseline diagrams in [`../plantuml/refinement/`](../plantuml/refinement/README.md).
+Refined technical diagrams are stored separately from the original baseline diagrams in [plantuml/refinement/](../plantuml/refinement/).
+
+- [Fishbone Analysis - Gap Analysis v1.1](../plantuml/refinement/10_fishbone_gap_analysis_v1.1.puml)
 
 ## Document Baseline
 

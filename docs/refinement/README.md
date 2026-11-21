@@ -24,6 +24,11 @@ This folder contains versioned addenda to the original RabbitCare v1.0 documenta
 - [SRD Refinement v1.1 - PDF](SRD_Refinement_v1.1.pdf)
 - [SRD Change Log v1.1](SRD_Change_Log_v1.1.md)
 
+### Gap Analysis
+- [Gap Analysis Refinement v1.1 - Markdown](Gap_Analysis_Refinement_v1.1.md)
+- [Gap Analysis Refinement v1.1 - PDF](Gap_Analysis_Refinement_v1.1.pdf)
+- [Gap Analysis Change Log v1.1](Gap_Analysis_Change_Log_v1.1.md)
+
 ## UML / PlantUML
 
 The updated technical diagrams are maintained separately in [`../../plantuml/refinement/`](../../plantuml/refinement/README.md). Original diagrams in the root `plantuml/` folder are preserved as the v1.0 baseline.

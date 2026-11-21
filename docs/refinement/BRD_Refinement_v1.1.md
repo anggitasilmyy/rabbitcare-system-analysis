@@ -9,7 +9,7 @@
 
 Dua keputusan ruang lingkup yang menjadi dasar refinement ini:
 
-1. **Booking memerlukan persetujuan admin.** Booking yang diajukan pemilik tidak langsung berstatus terkonfirmasi; admin meninjau dan menyetujui atau menolaknya.
+1. **Owner-submitted booking requires admin approval.** Booking yang diajukan pemilik tidak langsung berstatus terkonfirmasi; admin meninjau dan menyetujui atau menolaknya.
 2. **Payment gateway termasuk dalam MVP.** Integrasi payment gateway menjadi bagian dari ruang lingkup awal RabbitCare.
 
 Dokumen BRD v1.0 tetap dipertahankan tanpa perubahan. Addendum ini hanya memperbarui ketentuan yang terdampak. Ketentuan lain yang tidak disebutkan tetap mengikuti BRD v1.0.
@@ -121,7 +121,7 @@ Booking yang dibuat admin atas nama pemilik memerlukan aturan tersendiri: apakah
 6. Provider memproses transaksi dan mengirimkan hasil transaksi kepada sistem.
 7. Sistem memverifikasi hasil transaksi sebelum memperbarui status.
 8. Jika transaksi berhasil dan valid, pembayaran dan invoice dicatat lunas serta bukti pembayaran diterbitkan.
-9. Jika transaksi gagal, invoice tetap belum lunas dan pemilik dapat mengikuti mekanisme percobaan ulang yang ditetapkan sistem.
+9. 9. Jika transaksi gagal, invoice tetap belum lunas. Kebijakan percobaan ulang dan masa berlaku pembayaran mengikuti ketentuan yang akan ditetapkan bersama stakeholder dan payment gateway provider.
 
 Detail teknis checkout session, callback, signature, idempotency, dan rekonsiliasi dijabarkan pada SRD, bukan ditetapkan sebagai detail implementasi di BRD.
 
@@ -198,6 +198,7 @@ Sebelum BRD dianggap disetujui stakeholder, hal berikut perlu diputuskan:
 5. Perlakuan booking yang dibuat admin atas nama pemilik.
 6. Kebijakan refund, pembatalan transaksi, dan rekonsiliasi jika notifikasi provider terlambat/tidak diterima.
 7. Apakah pembayaran hanya dilakukan setelah layanan atau deposit diperlukan pada fase berikutnya.
+8. Kebijakan payment retry, termasuk batas percobaan, masa berlaku invoice, dan penanganan transaksi pending atau expired.
 
 ## 12. Referensi ke BRD baseline
 
