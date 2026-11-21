@@ -57,6 +57,10 @@ Refinement documents record decisions and changes separately from the original v
 
 Refined technical diagrams are stored separately from the original baseline diagrams in [plantuml/refinement/](../plantuml/refinement/).
 
+- [PlantUML Refinement v1.1 - Diagram Index](../plantuml/refinement/README.md)
+- [Use Case Context v1.1](../plantuml/refinement/01_use_case_context_v1.1.puml)
+- [Use Case Owner Portal v1.1](../plantuml/refinement/02_use_case_owner_portal_v1.1.puml)
+- [Use Case Clinic Operations v1.1](../plantuml/refinement/03_use_case_clinic_operations_v1.1.puml)
 - [Fishbone Analysis - Gap Analysis v1.1](../plantuml/refinement/10_fishbone_gap_analysis_v1.1.puml)
 
 ## Document Baseline

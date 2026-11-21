@@ -1,6 +1,6 @@
 @startuml
 skinparam shadowing false
-title Sequence Diagram - Booking Request and Admin Approval v1.1
+title Sequence Diagram - Owner Booking Request and Admin Approval v1.1
 
 actor "Pemilik Kelinci" as Owner
 boundary "Owner Portal" as OUI
@@ -12,33 +12,37 @@ actor "Admin Klinik" as Admin
 boundary "Clinic Portal" as CUI
 control "Notification Service" as NS
 
-Owner -> OUI : Pilih pet, layanan, jadwal, slot
+Owner -> OUI : Pilih kelinci, layanan, jadwal, dan slot
 OUI -> API : POST /api/bookings
 API -> BS : createBooking(request, ownerContext)
 BS -> BS : validateTokenRoleAndPetOwnership()
-BS -> SS : checkAvailability(scheduleId)
-SS -> DB : lock/check slot capacity
-DB --> SS : availability result
-SS --> BS : available
+BS -> BS : validateRequiredFieldsAndServiceRules()
+BS -> DB : BEGIN
+BS -> SS : lockAndValidateCapacity(scheduleId)
+SS -> DB : lock schedule/capacity record
+DB --> SS : current capacity data
+SS --> BS : available / unavailable
 
 alt Request valid and slot available
-  BS -> DB : INSERT booking(status=MENUNGGU_KONFIRMASI)
+  BS -> DB : INSERT Booking(status=MENUNGGU_KONFIRMASI)
   DB --> BS : bookingId + bookingCode
+  BS -> DB : insert audit/outbox event
   BS -> DB : COMMIT
-  BS -> NS : publish booking_submitted
+  BS -> NS : publish booking_submitted (after commit)
   NS --> Owner : Notifikasi pengajuan diterima
-  NS --> Admin : Notifikasi booking menunggu review
-  BS --> API : booking pending response
-  API --> OUI : 201 Created + booking status
+  NS --> Admin : Notifikasi pengajuan menunggu review
+  BS --> API : 201 Created + pending booking
+  API --> OUI : booking reference + MENUNGGU_KONFIRMASI
 else Invalid request / slot unavailable
+  BS -> DB : ROLLBACK
   BS --> API : validation error / BOOKING_SLOT_UNAVAILABLE
-  API --> OUI : error response
+  API --> OUI : error response / pilih slot lain
 end
 
 Admin -> CUI : Buka review queue
 CUI -> API : GET /api/bookings?status=MENUNGGU_KONFIRMASI
-API -> BS : listPendingBookings()
-BS -> DB : query pending bookings
+API -> BS : listPendingOwnerBookings()
+BS -> DB : query pending owner-submitted bookings
 DB --> BS : pending booking list
 BS --> API : list
 API --> CUI : review queue
@@ -47,35 +51,53 @@ alt Admin approves
   Admin -> CUI : Approve booking
   CUI -> API : PATCH /api/bookings/{id}/confirm
   API -> BS : approveBooking(id, adminContext)
-  BS -> DB : BEGIN + lock booking/schedule
-  BS -> DB : validate pending status and slot capacity
-  alt Slot still available
-    BS -> DB : update status=TERKONFIRMASI,\ndecided_by, decision_at
-    BS -> DB : insert audit log + COMMIT
-    BS -> NS : publish booking_approved
+  BS -> DB : BEGIN + lock Booking
+  BS -> DB : validate current status is pending
+  BS -> SS : revalidateAndLockCapacity(scheduleId)
+  SS -> DB : lock slot/capacity and check capacity
+  DB --> SS : current capacity result
+  SS --> BS : available / unavailable
+  alt Booking pending and slot available
+    BS -> DB : conditional update status=TERKONFIRMASI,\ndecided_by, decision_at
+    BS -> DB : insert audit/outbox event
+    BS -> DB : COMMIT
+    BS -> NS : publish booking_approved (after commit)
     NS --> Owner : Notifikasi booking disetujui
     BS --> API : approved
-  else Slot unavailable
+  else Slot unavailable or booking already decided
     BS -> DB : ROLLBACK
-    BS --> API : 409 BOOKING_SLOT_UNAVAILABLE
+    BS --> API : 409 BOOKING_SLOT_UNAVAILABLE / BOOKING_ALREADY_DECIDED
   end
 else Admin rejects
   Admin -> CUI : Reject + rejection reason
   CUI -> API : PATCH /api/bookings/{id}/reject
   API -> BS : rejectBooking(id, reason, adminContext)
-  BS -> DB : validate status and reason
-  BS -> DB : update status=DITOLAK,\nreason, decided_by, decision_at
-  BS -> DB : insert audit log + COMMIT
-  BS -> NS : publish booking_rejected
-  NS --> Owner : Notifikasi booking ditolak
+  BS -> DB : BEGIN + lock Booking
+  BS -> DB : validate pending status and required reason
+  BS -> DB : conditional update status=DITOLAK,\nreason, decided_by, decision_at
+  BS -> DB : insert audit/outbox event
+  BS -> DB : COMMIT
+  BS -> NS : publish booking_rejected (after commit)
+  NS --> Owner : Notifikasi booking ditolak + reason
   BS --> API : rejected
 end
 
-Owner -> OUI : Refresh status booking
-OUI -> API : GET /api/bookings/{id}
-API -> BS : getBookingStatus()
-BS -> DB : query booking
-DB --> BS : current status
-BS --> API : status
+Owner -> OUI : Lihat status booking
+OUI -> API : GET /api/bookings/{booking_id}
+API -> BS : getBookingStatus(ownerContext)
+BS -> DB : query own booking and decision details
+DB --> BS : current status + decision metadata
+BS --> API : status + rejection reason if applicable
 API --> OUI : status and decision details
+
+note over BS,DB
+  Pending slot hold/expiry after the request transaction
+  remains subject to stakeholder validation.
+  Capacity is always revalidated during approval.
+end note
+
+note over Owner,Admin
+  This sequence models owner-submitted requests.
+  A separate Admin-created booking flow is not assumed.
+end note
 @enduml

@@ -4,56 +4,93 @@ title Activity Diagram - Invoice Payment via Gateway v1.1
 
 |Sistem|
 start
-:Menerbitkan / menampilkan invoice;
-:Menyimpan invoice berstatus BELUM_DIBAYAR;
+:Invoice telah diterbitkan;
+:Invoice berstatus BELUM_DIBAYAR;
 
 |Pemilik Kelinci|
-:Membuka invoice;
+:Membuka invoice miliknya;
 :Memilih Bayar melalui Gateway;
+:Mengirim permintaan pembayaran;
 
 |Sistem|
-:Validasi kepemilikan, invoice, dan outstanding amount;
-if (Invoice belum lunas dan valid?) then (Ya)
-  :Membuat payment attempt berstatus PENDING;
-  :Menyimpan internal reference dan idempotency key;
-  :Meminta gateway membuat checkout;
-else (Tidak)
-  :Menampilkan error invoice;
-  stop
-endif
+:Validasi kepemilikan invoice dan status;
+:Ambil amount dan currency dari data invoice;
+if (Invoice valid dan belum lunas?) then (Ya)
+  :Periksa idempotency key dan payment attempt aktif;
+  if (Key sama dan payload sama?) then (Ya)
+    :Kembalikan payment attempt yang sudah ada;
+    stop
+  else (Tidak)
+    if (Key sama tetapi payload berbeda?) then (Ya)
+      :Tolak dengan IDEMPOTENCY_KEY_CONFLICT;
+      stop
+    else (Tidak)
+      if (Masih ada attempt aktif / hasil belum pasti?) then (Ya)
+        :Kembalikan attempt aktif atau PAYMENT_ATTEMPT_IN_PROGRESS;
+        stop
+      else (Tidak)
+        :Buat payment attempt PENDING;
+        :Simpan internal reference dan idempotency key;
+        :Commit payment attempt;
 
-|Payment Gateway|
-:Memproses pembayaran pemilik;
-:Mengirim callback / webhook ke RabbitCare;
-
-|Sistem|
-:Memverifikasi signature / autentikasi callback;
-:Memeriksa reference, invoice, amount, currency, dan status;
-:Memeriksa event duplikat;
-if (Callback valid dan transaksi berhasil?) then (Ya)
-  :Lock payment dan invoice;
-  :Update Payment = PAID;
-  :Update Invoice = LUNAS;
-  :Simpan callback event dan audit;
-  :Commit transaksi;
-  :Menerbitkan receipt;
-  :Mengirim notifikasi pembayaran berhasil;
-  |Pemilik Kelinci|
-  :Melihat status PAID dan receipt;
-  stop
-else (Tidak)
-  if (Callback valid tetapi pending?) then (Pending)
-    :Pertahankan Payment = PENDING;
-    :Invoice tetap BELUM_DIBAYAR;
-  else (Failed / Invalid)
-    :Update FAILED/CANCELLED jika status valid;
-    :Atau catat exception bila callback invalid;
-    :Invoice tetap BELUM_DIBAYAR;
+        |Payment Gateway Adapter|
+        :Meminta provider membuat checkout;
+        |Payment Gateway|
+        :Menyediakan checkout untuk pemilik;
+        |Pemilik Kelinci|
+        :Menyelesaikan pembayaran pada provider;
+        |Payment Gateway|
+        :Mengirim callback / webhook;
+        |Sistem|
+        :Verifikasi autentisitas callback;
+        :Cocokkan reference, invoice, amount, currency, event, dan status;
+        if (Callback sudah pernah diproses?) then (Ya)
+          :Akui callback duplikat tanpa efek ganda;
+          stop
+        else (Tidak)
+          if (Callback valid?) then (Ya)
+            if (Transaksi berhasil?) then (Ya)
+              :Lock Payment dan Invoice;
+              if (Invoice belum lunas?) then (Ya)
+                :Update Payment = PAID;
+                :Update Invoice = LUNAS;
+                :Simpan callback event dan audit;
+                :Commit transaksi;
+                :Terbitkan receipt secara idempotent;
+                :Kirim notifikasi pembayaran berhasil;
+              else (Tidak)
+                :Catat payment exception;
+                :Tidak menerbitkan receipt kedua;
+                :Masukkan transaksi ke rekonsiliasi;
+              endif
+            else (Pending / Failed / Cancelled)
+              :Update status Payment sesuai hasil valid;
+              :Invoice tetap BELUM_DIBAYAR;
+              :Catat callback event dan audit;
+              :Commit transaksi;
+              :Tidak menerbitkan receipt lunas;
+            endif
+          else (Tidak)
+            :Catat callback sebagai invalid / exception;
+            :Tidak mengubah status Payment atau Invoice;
+            :Tidak menerbitkan receipt;
+          endif
+        endif
+      endif
+    endif
   endif
-  :Tidak menerbitkan receipt lunas;
-  :Catat status untuk monitoring;
-  |Pemilik Kelinci|
-  :Melihat status transaksi;
-  stop
+else (Tidak)
+  :Menolak request pembayaran;
+  :Invoice tetap tidak berubah;
 endif
+
+|Pemilik Kelinci|
+:Melihat status payment dan receipt jika tersedia;
+stop
+
+note bottom
+  Browser redirect is not proof of payment.
+  Only a verified provider result can update Payment and Invoice.
+  Booking lifecycle is not changed by payment processing.
+end note
 @enduml

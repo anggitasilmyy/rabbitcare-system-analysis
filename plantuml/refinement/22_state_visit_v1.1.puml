@@ -1,0 +1,25 @@
+@startuml
+skinparam shadowing false
+title State Machine Diagram - Visit / Service Lifecycle v1.1
+
+[*] --> BelumCheckIn : confirmed booking reaches service date
+BelumCheckIn --> CheckedIn : admin records patient arrival
+BelumCheckIn --> TidakHadir : no-show rule is met
+CheckedIn --> MenungguAntrean : check-in data and queue number saved
+MenungguAntrean --> SedangDilayani : staff calls patient
+SedangDilayani --> SelesaiDilayani : service record completed
+
+TidakHadir --> [*]
+SelesaiDilayani --> [*]
+
+note right of BelumCheckIn
+  A Visit is associated with a confirmed Booking.
+  Visit status tracks attendance and service progress;
+  it does not replace the Booking status.
+end note
+
+note bottom of SelesaiDilayani
+  Invoice/payment processing is separate.
+  Payment outcome does not change Visit or Booking status.
+end note
+@enduml

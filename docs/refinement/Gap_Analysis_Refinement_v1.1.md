@@ -17,7 +17,7 @@
 | Purpose | Refine the original gap analysis to align it with the latest product decisions and the BRD, MRD, PRD, and SRD refinement direction |
 | Baseline preservation | The original Gap Analysis PDF remains unchanged in `docs/analysis/` |
 | Scope | Booking, staff scheduling, service operations, billing, payment, reporting, access control, infrastructure, and user adoption |
-| Confirmed decisions | Booking is admin-managed; payment gateway integration is included in the MVP |
+| Confirmed decisions | Owner-submitted booking is self-service at request stage and requires admin approval/rejection before confirmation; payment gateway integration is included in the MVP |
 | Versioning | This addendum records refinements; it does not silently rewrite the original analysis |
 
 ## 1. Purpose and Scope
@@ -28,31 +28,31 @@ The original document identifies 18 process areas and describes the current stat
 
 The refinement preserves the original problem context while aligning the proposed solution with two confirmed product decisions:
 
-1. **Booking is admin-managed.** Owners do not create confirmed bookings through self-service booking. Clinic staff record the owner's request, check availability, and manage confirmation.
+1. **Owner-submitted booking requires admin approval.** Owners can submit booking requests through the Owner Portal. A submitted request is not a confirmed appointment; an authorized admin must review and approve or reject it. The system must revalidate slot capacity before approval.
 2. **Payment gateway is part of the MVP.** Gateway integration is no longer positioned as a long-term enhancement. The MVP must support a gateway-based payment flow and verified transaction status.
 
 This document is a refinement addendum, not evidence that the system has already been implemented or that the clinic's current operations have been independently audited.
 
 ## 2. Confirmed Product Decisions
 
-### 2.1 Admin-Managed Booking
+### 2.1 Owner-Submitted Booking with Admin Approval
 
-The owner may contact the clinic through the clinic's accepted communication channels. An authorized admin records the request in RabbitCare, checks the selected service, staff schedule, and slot capacity, and manages the booking decision.
+The owner uses the Owner Portal to submit a booking request by selecting a rabbit profile, service, preferred staff member (where applicable), date, and available time slot. The system validates the request and current slot availability, then stores the request with status `MENUNGGU_KONFIRMASI`. Submission does not mean the appointment is confirmed.
 
-The system must not treat an owner's request as a confirmed appointment. A booking becomes `TERKONFIRMASI` only after an authorized admin approves it and the system revalidates the slot capacity.
+An authorized clinic admin reviews the pending request and either approves or rejects it. Before approval, the system revalidates slot capacity to reduce double-booking risk. If the slot is no longer available, the system must not confirm the booking. The owner can view the latest booking status and the rejection reason when applicable.
 
 **Target flow**
 
-1. Owner submits an appointment request through a clinic-supported channel.
-2. Admin creates or finds the owner's and rabbit's records.
-3. Admin records the requested service, preferred date/time, and relevant notes.
-4. System checks staff availability and service capacity.
-5. Booking is stored as `MENUNGGU_KONFIRMASI`.
-6. Admin approves or rejects the request.
-7. Before approval, the system revalidates capacity to reduce double-booking risk.
-8. System records the decision and makes the latest booking status available to authorized users.
+1. Owner logs in to the Owner Portal and selects a rabbit profile.
+2. Owner selects the service, preferred staff member (where applicable), date, and available time slot.
+3. Owner reviews and submits the booking request.
+4. System validates ownership, required fields, service rules, schedule, and current capacity.
+5. System stores the request as `MENUNGGU_KONFIRMASI` and returns a booking reference.
+6. Admin opens the review queue and checks the request details and clinic availability.
+7. If approved, the system revalidates capacity, records the admin decision, and changes the status to `TERKONFIRMASI`. If rejected, the admin must provide a rejection reason and the status becomes `DITOLAK`.
+8. The owner can view the decision and relevant status information in the Owner Portal; notification delivery follows the configured channel.
 
-The owner-facing self-service booking capability is not part of the confirmed MVP booking model. An owner-facing status notification may be used, but the delivery channel and automation rules require clinic validation.
+This is the confirmed MVP booking model. Any separate workflow in which an admin enters a booking on behalf of an owner after a phone call, walk-in, or other offline request is not substituted for the Owner Portal flow and remains subject to stakeholder validation.
 
 ### 2.2 Booking, Visit, Invoice, and Payment Are Separate Lifecycles
 
@@ -60,7 +60,7 @@ The original analysis groups several service and payment labels in one status li
 
 | Lifecycle | Proposed statuses | Meaning |
 |---|---|---|
-| Booking | `MENUNGGU_KONFIRMASI`, `TERKONFIRMASI`, `DITOLAK`, `DIBATALKAN`, `DIJADWALKAN_ULANG` | Admin-managed appointment request and decision |
+| Booking | `MENUNGGU_KONFIRMASI`, `TERKONFIRMASI`, `DITOLAK`, `DIBATALKAN`, `DIJADWALKAN_ULANG` | Owner-submitted appointment request and admin decision |
 | Visit/service | `BELUM_CHECK_IN`, `CHECKED_IN`, `MENUNGGU_ANTREAN`, `SEDANG_DILAYANI`, `SELESAI_DILAYANI`, `TIDAK_HADIR` | Physical attendance and service progress |
 | Invoice | `BELUM_DIBAYAR`, `LUNAS` | Amount due and settlement state |
 | Payment attempt | `PENDING`, `PAID`, `FAILED`, `CANCELLED` | Individual gateway transaction attempt |
@@ -106,9 +106,12 @@ These are baseline assumptions from the original document, not independently ver
 
 The refined target state is:
 
-- Admin records and manages all booking requests in RabbitCare.
-- Admin can review staff schedules and service capacity before confirming a booking.
-- The system revalidates capacity before confirmation to reduce double booking.
+- Owners submit booking requests through the Owner Portal.
+- The system validates the request and displays available schedule/slot options before submission.
+- Submitted requests remain `MENUNGGU_KONFIRMASI` until an authorized admin approves or rejects them.
+- Admin reviews the request and can check staff schedules and service capacity.
+- The system revalidates capacity before approval to reduce double booking.
+- Owners can view the booking decision and rejection reason, if applicable, in the Owner Portal.
 - Each rabbit has a unique profile and medical record identifier.
 - Visit, service, invoice, and payment statuses are tracked separately.
 - The system creates invoices from recorded services and items.
@@ -125,7 +128,7 @@ The 18 original process areas are retained. The target state and priority are up
 |---:|---|---|---|---|---|
 | 1 | Owner registration | Owner data is recorded manually or through messages | Admin can register and maintain owner records in a centralized system | No consistent digital registration and duplicate-data control | High |
 | 2 | Rabbit profile | Rabbit data is spread across separate records | Each rabbit has a centralized profile and unique ID | Patient history is difficult to trace | Very High |
-| 3 | Booking | Requests arrive through WhatsApp, phone, or walk-in | Admin records the request, checks availability, and approves/rejects it in RabbitCare | No structured admin workflow, status tracking, or capacity revalidation | Very High |
+| 3 | Booking | Requests arrive through WhatsApp, phone, or walk-in | Owner submits a request through the Owner Portal; the system stores it as `MENUNGGU_KONFIRMASI`; admin reviews and approves/rejects after capacity revalidation | No integrated self-service request, admin review queue, decision tracking, or capacity revalidation | Very High |
 | 4 | Staff scheduling | Doctor and groomer schedules are recorded manually | Admin views and maintains staff availability and service capacity | Schedule conflicts and double-booking risk | Very High |
 | 5 | Check-in | Arrival is recorded manually | Admin records arrival against a confirmed booking | Attendance status cannot be monitored consistently | High |
 | 6 | Queue | Queue is communicated verbally | System generates and tracks queue order after check-in | Service flow is difficult to monitor | High |
@@ -150,9 +153,9 @@ Owner, rabbit, booking, service, medical, invoice, and payment information must 
 
 ### 5.2 Booking and Service-Control Gap
 
-The target is not owner self-service booking. The required change is a controlled admin workflow that records requests, checks staff availability and service capacity, revalidates capacity before confirmation, and maintains a traceable booking decision.
+The target combines owner self-service request submission with admin-controlled confirmation. Owners submit booking requests through the Owner Portal and can see available schedule options. The system records each valid request as `MENUNGGU_KONFIRMASI`; an authorized admin reviews it and approves or rejects it. Capacity is revalidated during approval, and the decision, actor, timestamp, and rejection reason (when applicable) are traceable.
 
-Booking status must remain separate from check-in, queue, and service progress.
+The system must not treat request submission as confirmation. Booking status must remain separate from check-in, queue, and service progress. The policy for any additional admin-created booking workflow remains open for stakeholder validation.
 
 ### 5.3 Continuity-of-Care Gap
 
@@ -240,9 +243,9 @@ The previous statement that payment gateway integration is not a main feature mu
 
 | Cause category | Refined contributing causes |
 |---|---|
-| People | Owners depend on clinic staff to request appointments; staff may enter incomplete booking or transaction data; digital skill levels vary; responsibility for status updates may be unclear |
-| Process | Booking requests are handled through multiple channels; admin confirmation and capacity checks are not systemized; visit and payment statuses may be mixed; payment reconciliation may be manual |
-| Technology | No centralized application in the baseline; no structured slot-capacity validation; no gateway callback verification; no integrated notification and reporting services |
+| People | Owners may submit incomplete booking details; admins may delay reviewing pending requests; staff may enter incomplete transaction data; digital skill levels vary; responsibility for decision updates may be unclear |
+| Process | Owner request submission and admin decision workflow may not be standardized; capacity must be revalidated before approval; slot hold/expiry policy remains open; visit and payment statuses may be mixed; payment reconciliation may be manual |
+| Technology | No integrated Owner Portal booking request flow in the current state; no admin review queue; no structured slot-capacity validation; no gateway callback verification; no integrated notification and reporting services |
 | Data | Owner and rabbit records may be duplicated; medical history is fragmented; booking and invoice references may not be consistently linked; payment evidence may be difficult to trace |
 | Management and Measurement | No consolidated operational dashboard; booking, no-show, service-time, and payment reconciliation indicators may not be consistently measured |
 | Environment and External Services | Internet or hosting outages; gateway and notification-provider downtime; provider callback delays; changes in staff schedules; limited devices |
@@ -254,7 +257,7 @@ The updated PlantUML source is provided separately at `plantuml/refinement/10_fi
 | Rank | Root cause / gap | Reason for priority |
 |---:|---|---|
 | 1 | No centralized and linked data foundation | Required for owner, rabbit, booking, service, invoice, and payment traceability |
-| 2 | No controlled admin booking and capacity-validation workflow | Directly addresses booking ownership and double-booking risk |
+| 2 | No integrated owner request and admin approval workflow with capacity validation | Directly addresses request visibility, decision traceability, and double-booking risk |
 | 3 | Medical history is not integrated | Affects continuity and quality of clinical service |
 | 4 | Billing and gateway payment are not integrated | Payment gateway is a confirmed MVP capability and must support verified settlement |
 | 5 | Service and visit statuses are not standardized | Needed for check-in, queue, and service monitoring |
@@ -271,9 +274,10 @@ The updated PlantUML source is provided separately at `plantuml/refinement/10_fi
 The MVP should include:
 
 - Owner and rabbit registration/profile management.
-- Admin-managed booking request recording and decision workflow.
+- Owner self-service booking request submission through the Owner Portal.
+- Admin review queue and approval/rejection workflow for owner-submitted requests.
 - Staff schedule and service-capacity checking.
-- Booking status and revalidation before confirmation.
+- Booking status visibility and capacity revalidation before approval.
 - Check-in and queue management.
 - Medical records and basic vaccination records.
 - Grooming records and referral notes.
@@ -310,7 +314,7 @@ The MVP should include:
 | Gap | Action | Expected output |
 |---|---|---|
 | Owner and rabbit data are fragmented | Create centralized owner and rabbit records with unique identifiers | Linked patient information |
-| Booking is handled across channels | Provide an admin-managed booking workflow with status tracking | All clinic-managed booking requests are recorded |
+| Booking requests are handled manually across channels | Provide Owner Portal request submission, pending status, and admin approval/rejection | Owner-submitted requests are traceable from submission through admin decision |
 | Schedule conflicts may occur | Add staff availability and service-capacity checks, including revalidation before confirmation | Lower double-booking risk |
 | Visit progress is unclear | Link check-in, queue, and service statuses to the booking/visit record | Traceable service progress |
 | Medical and grooming records are separate | Link clinical and grooming notes to the rabbit profile | More complete care history |
@@ -324,28 +328,31 @@ The MVP should include:
 
 ## 12. Proposed Success Indicators
 
-The original indicators are retained where relevant and adjusted to match admin-managed booking and gateway-based payment. Targets below are proposed acceptance targets and must be validated with clinic stakeholders.
+The original indicators are retained where relevant and adjusted to match owner-submitted booking with admin approval and gateway-based payment. Targets below are proposed acceptance targets and must be validated with clinic stakeholders.
 
-1. Every booking request accepted by the clinic is recorded in RabbitCare by an authorized admin.
-2. Every rabbit profile has a unique patient identifier.
-3. No booking is confirmed without an authorized admin decision and a successful capacity revalidation.
-4. No overlapping confirmed booking is created for the same constrained staff/resource slot.
-5. At least 90% of completed examinations are stored digitally during the pilot measurement period.
-6. Every visit has a traceable check-in and service status.
-7. Follow-up reminders are generated from recorded care dates according to the agreed rules.
-8. Every invoice has a unique internal reference.
-9. Every successful gateway payment is matched to the correct invoice and amount before the invoice becomes `LUNAS`.
-10. Repeated provider callbacks do not create duplicate settlement records.
-11. Authorized clinicians can access the rabbit's relevant history before examination.
-12. Grooming findings and referrals can be traced to the relevant rabbit profile.
-13. Managers can access agreed operational reports without manual re-aggregation.
-14. Users can access only the features and records permitted by their roles.
+1. At least 80% of booking requests in the pilot measurement period are submitted through the Owner Portal, subject to validation of the original baseline target with clinic stakeholders.
+2. Every valid booking request submitted through the Owner Portal is stored in RabbitCare with a unique booking reference.
+3. Every rabbit profile has a unique patient identifier.
+4. No owner-submitted booking is confirmed without an authorized admin decision and successful capacity revalidation.
+5. Owners can view the latest status of their own booking requests and the rejection reason when applicable.
+6. No overlapping confirmed booking is created for the same constrained staff/resource slot.
+7. At least 90% of completed examinations are stored digitally during the pilot measurement period.
+8. Every visit has a traceable check-in and service status.
+9. Follow-up reminders are generated from recorded care dates according to the agreed rules.
+10. Every invoice has a unique internal reference.
+11. Every successful gateway payment is matched to the correct invoice and amount before the invoice becomes `LUNAS`.
+12. Repeated provider callbacks do not create duplicate settlement records.
+13. Authorized clinicians can access the rabbit's relevant history before examination.
+14. Grooming findings and referrals can be traced to the relevant rabbit profile.
+15. Managers can access agreed operational reports without manual re-aggregation.
+16. Users can access only the features and records permitted by their roles.
 
 ## 13. Risks, Dependencies, and Controls
 
 | Risk / dependency | Potential impact | Proposed control |
 |---|---|---|
-| Admin does not record a booking request | Request is missed or not visible to the clinic | Define booking intake responsibility and required fields |
+| Owner submits incomplete booking details | Request cannot be reviewed or may contain invalid service/schedule information | Validate required fields, ownership, service eligibility, and selected schedule before accepting the request |
+| Admin does not review a pending booking promptly | Owner waits for a decision and requested capacity may change | Provide a pending review queue; agree an approval SLA and escalation process with stakeholders |
 | Staff schedule changes after request entry | Confirmed slot may become unavailable | Revalidate capacity before confirmation and define reschedule handling |
 | Gateway is unavailable | Owner cannot complete payment through the provider | Define an approved outage and exception procedure before launch |
 | Callback is delayed or duplicated | Payment status may be temporarily inaccurate or processed more than once | Idempotent callback handling, transaction lookup, and reconciliation |
@@ -359,20 +366,22 @@ The original indicators are retained where relevant and adjusted to match admin-
 
 The following items are not specified by the original Gap Analysis or the two confirmed product decisions. They must be validated rather than assumed:
 
-1. Which channels may owners use to request a booking?
-2. Which admin roles may create, approve, reject, cancel, or reschedule bookings?
-3. What are the clinic's slot-capacity rules for each service and staff member?
-4. Which payment gateway provider will be used?
-5. Which payment methods and transaction-expiry rules are required in the MVP?
-6. What is the approved procedure for refunds, failed payments, gateway downtime, and manual exception handling?
-7. What receipt fields and invoice numbering rules are required?
-8. Which reminder channels and delivery rules are required for the MVP?
-9. Which operational indicators and target thresholds will be used during the pilot?
+1. Which schedule, staff, and service availability details should be visible to owners before they submit a booking request?
+2. Which admin roles may approve, reject, cancel, or reschedule owner-submitted bookings?
+3. What approval SLA and escalation process should apply to pending requests?
+4. Are phone, walk-in, or other offline booking requests also accepted, and if so, should a separate admin-entry workflow be supported?
+5. What are the clinic's slot-capacity, pending hold, and expiry rules for each service and staff member?
+6. Which payment gateway provider will be used?
+7. Which payment methods and transaction-expiry rules are required in the MVP?
+8. What is the approved procedure for refunds, failed payments, gateway downtime, and manual exception handling?
+9. What receipt fields and invoice numbering rules are required?
+10. Which reminder channels and delivery rules are required for the MVP?
+11. Which operational indicators and target thresholds will be used during the pilot?
 
 ## 15. Conclusion
 
 The original Gap Analysis correctly identifies integration, booking, patient-history, reminder, billing, access-control, infrastructure, and adoption challenges. The refinement preserves those findings while updating the target model to reflect the current product direction.
 
-The most important changes are that booking is managed by clinic admin rather than owner self-service, and payment gateway integration is included in the MVP. Booking, visit, invoice, and payment lifecycles are separated to improve process clarity and traceability.
+The most important booking refinement is that owners retain self-service request submission through the Owner Portal, while an authorized admin must approve or reject each owner-submitted request before it becomes confirmed. Payment gateway integration is included in the MVP. Booking, visit, invoice, and payment lifecycles are separated to improve process clarity and traceability.
 
 Successful gap closure requires more than application development. It also depends on clear admin responsibilities, reliable schedule and capacity validation, secure gateway integration, transaction reconciliation, role-based procedures, staff training, and a controlled pilot.

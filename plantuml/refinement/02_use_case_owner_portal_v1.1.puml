@@ -1,0 +1,72 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam actorStyle awesome
+title Use Case Detail - Owner Portal v1.1
+
+actor "Pemilik Kelinci" as Owner
+actor "Layanan Notifikasi" as Notification
+actor "Payment Gateway Provider" as Gateway
+
+rectangle "Owner Portal - RabbitCare" {
+  usecase "Registrasi Akun" as U1
+  usecase "Login" as U2
+  usecase "Kelola Profil Pemilik" as U3
+  usecase "Tambah / Ubah\nProfil Kelinci" as U4
+  usecase "Ajukan Booking\nLayanan" as U5
+  usecase "Pilih Profil Kelinci" as U6
+  usecase "Pilih Layanan" as U7
+  usecase "Pilih Jadwal dan\nSlot Tersedia" as U8
+  usecase "Tinjau dan Kirim\nPengajuan Booking" as U9
+  usecase "Lihat Status dan\nKeputusan Booking" as U10
+  usecase "Lihat Alasan\nPenolakan" as U11
+  usecase "Batalkan / Jadwalkan\nUlang Booking" as U12
+  usecase "Lihat Riwayat Kesehatan" as U13
+  usecase "Lihat Riwayat Vaksin" as U14
+  usecase "Lihat Riwayat Grooming" as U15
+  usecase "Lihat Invoice" as U16
+  usecase "Mulai Pembayaran\nmelalui Gateway" as U17
+  usecase "Lihat Status Pembayaran\ndan Receipt" as U18
+  usecase "Terima Reminder\nPerawatan" as U19
+}
+
+Owner -- U1
+Owner -- U2
+Owner -- U3
+Owner -- U4
+Owner -- U5
+Owner -- U10
+Owner -- U12
+Owner -- U13
+Owner -- U14
+Owner -- U15
+Owner -- U16
+Owner -- U17
+Owner -- U18
+Owner -- U19
+Notification -- U19
+Notification -- U10
+Gateway -- U17
+Gateway -- U18
+
+U5 .> U6 : <<include>>
+U5 .> U7 : <<include>>
+U5 .> U8 : <<include>>
+U5 .> U9 : <<include>>
+U11 .> U10 : <<extend>>\n(jika ditolak)
+U12 .> U10 : <<extend>>\n(jika status mengizinkan)
+U17 .> U16 : <<extend>>
+
+note bottom of U5
+  Owner submits a booking request.
+  The request is stored as MENUNGGU_KONFIRMASI.
+  It becomes TERKONFIRMASI only after admin approval
+  and successful slot-capacity revalidation.
+end note
+
+note bottom of U17
+  Payment is available after an invoice has been issued.
+  Payment status is based on verified provider results,
+  not only on a browser redirect.
+end note
+@enduml

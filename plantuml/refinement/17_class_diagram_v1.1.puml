@@ -2,8 +2,7 @@
 skinparam shadowing false
 skinparam classAttributeIconSize 0
 hide circle
-
-title Class Diagram - RabbitCare Booking and Payment Refinement v1.1
+title Class Diagram - RabbitCare Booking, Visit, and Payment Refinement v1.1
 
 abstract class User {
   - idUser: UUID
@@ -13,10 +12,10 @@ abstract class User {
   - passwordHash: String
   - statusAkun: String
 }
-
 class PemilikKelinci
 abstract class PetugasKlinik
 class AdminResepsionis {
+  + reviewBooking()
   + approveBooking()
   + rejectBooking()
   + monitorPayment()
@@ -30,17 +29,17 @@ class Kelinci {
   - nomorRekamMedis: String
   - nama: String
 }
-
 class Layanan {
   - idLayanan: UUID
   - namaLayanan: String
   - durasiMenit: Integer
   - hargaDasar: Decimal
 }
-
 class JadwalLayanan {
   - idJadwal: UUID
   - tanggal: Date
+  - jamMulai: Time
+  - jamSelesai: Time
   - kapasitas: Integer
   - status: String
 }
@@ -55,13 +54,52 @@ class Booking {
   - rejectionReason: Text?
 }
 
+class Visit {
+  - visitId: UUID
+  - visitDate: Date
+  - status: StatusVisit
+  - checkedInAt: DateTime?
+  - startedAt: DateTime?
+  - completedAt: DateTime?
+}
+class CheckIn {
+  - idCheckIn: UUID
+  - waktuDatang: DateTime
+  - beratAwal: Decimal
+  - keluhanAwal: Text
+  - nomorAntrean: String
+}
+class RekamMedis {
+  - idRekamMedis: UUID
+  - tanggalPemeriksaan: DateTime
+  - anamnesis: Text
+  - pemeriksaanFisik: Text
+  - diagnosis: Text
+  - tindakan: Text
+  - rekomendasi: Text
+}
+class CatatanVaksinasi {
+  - idVaksinasi: UUID
+  - jenisVaksin: String
+  - tanggalPemberian: Date
+  - dosis: String
+  - tanggalBerikutnya: Date
+}
+class CatatanGrooming {
+  - idGrooming: UUID
+  - tanggalGrooming: DateTime
+  - tindakan: Text
+  - temuan: Text
+  - rekomendasi: Text
+}
+
 class Invoice {
   - invoiceId: UUID
   - nomorTagihan: String
   - total: Decimal
+  - currency: String
   - status: StatusInvoice
 }
-
 class InvoiceItem {
   - idItem: UUID
   - deskripsi: String
@@ -69,7 +107,6 @@ class InvoiceItem {
   - hargaSatuan: Decimal
   - jumlah: Decimal
 }
-
 class Payment {
   - paymentId: UUID
   - invoiceId: UUID
@@ -83,20 +120,20 @@ class Payment {
   - initiatedAt: DateTime
   - paidAt: DateTime?
 }
-
 class PaymentCallbackEvent {
   - eventId: UUID
   - providerCode: String
   - providerEventReference: String?
+  - paymentId: UUID?
   - eventType: String
   - receivedAt: DateTime
   - verificationStatus: String
   - processingStatus: String
   - payloadHash: String?
 }
-
 class Receipt {
   - receiptId: UUID
+  - receiptNumber: String
   - invoiceId: UUID
   - paymentId: UUID
   - issuedAt: DateTime
@@ -106,20 +143,21 @@ enum StatusBooking {
   MENUNGGU_KONFIRMASI
   TERKONFIRMASI
   DITOLAK
-  CHECK_IN
+  DIBATALKAN
+  DIJADWALKAN_ULANG
+}
+enum StatusVisit {
+  BELUM_CHECK_IN
+  CHECKED_IN
   MENUNGGU_ANTREAN
   SEDANG_DILAYANI
   SELESAI_DILAYANI
-  DIBATALKAN
-  DIJADWALKAN_ULANG
   TIDAK_HADIR
 }
-
 enum StatusInvoice {
   BELUM_DIBAYAR
   LUNAS
 }
-
 enum StatusPayment {
   PENDING
   PAID
@@ -136,31 +174,50 @@ PetugasKlinik <|-- Groomer
 PetugasKlinik <|-- ManajerKlinik
 
 PemilikKelinci "1" -- "0..*" Kelinci : owns
-PemilikKelinci "1" -- "0..*" Booking : submits
-Kelinci "1" -- "0..*" Booking
+PemilikKelinci "1" -- "0..*" Booking : submits via Owner Portal
+Kelinci "1" -- "0..*" Booking : selected patient
 Layanan "1" -- "0..*" JadwalLayanan
-JadwalLayanan "1" -- "0..*" Booking : selected slot
-AdminResepsionis "1" -- "0..*" Booking : decides
+JadwalLayanan "1" -- "0..*" Booking : requested slot
+AdminResepsionis "0..1" -- "0..*" Booking : decides
+Booking "1" -- "0..1" Visit : may result in
+Visit "1" *-- "0..1" CheckIn
+Visit "1" -- "0..1" RekamMedis
+Visit "1" -- "0..*" CatatanVaksinasi
+Visit "1" -- "0..*" CatatanGrooming
 Booking "1" -- "0..1" Invoice
 Invoice "1" *-- "1..*" InvoiceItem
 Invoice "1" -- "0..*" Payment : payment attempts
-Payment "1" -- "0..*" PaymentCallbackEvent : provider events
-Payment "1" -- "0..1" Receipt : verified success only
+Payment "0..1" -- "0..*" PaymentCallbackEvent : matched provider events
+Invoice "1" -- "0..1" Receipt
+Payment "1" -- "0..1" Receipt : verified successful attempt
 
 Booking --> StatusBooking
+Visit --> StatusVisit
 Invoice --> StatusInvoice
 Payment --> StatusPayment
 
 note right of Booking
-  Booking status is an operational lifecycle.
-  Payment status is not stored on Booking.
+  Owner submits a request through Owner Portal.
+  MENUNGGU_KONFIRMASI is not a confirmed booking.
+  Admin decision metadata is recorded on approval/rejection.
   Rejection reason is required for DITOLAK.
 end note
 
+note right of Visit
+  Visit lifecycle is separate from Booking lifecycle.
+  Check-in, queue, service, and no-show states
+  must not be stored as Booking status values.
+end note
+
 note right of Payment
-  One Payment row represents one attempt.
+  One Payment row represents one payment attempt.
   An Invoice may have multiple attempts.
-  Only a verified successful attempt can
-  move the Invoice to LUNAS.
+  Only a verified successful attempt can settle
+  an unpaid Invoice and issue one Receipt.
+end note
+
+note bottom of PaymentCallbackEvent
+  Unmatched callback events may be recorded
+  with paymentId unset for exception monitoring.
 end note
 @enduml

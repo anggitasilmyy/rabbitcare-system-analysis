@@ -15,24 +15,24 @@ skinparam ArrowColor #64748B
 skinparam ArrowThickness 1.2
 
 rectangle "PEOPLE" as People
-rectangle "Owner requests depend on clinic staff\nAdmin may miss or incompletely record requests\nDigital skill levels vary\nResponsibility for status updates may be unclear" as PeopleCause
+rectangle "Owner may submit incomplete booking details\nAdmin review workload may delay decisions\nStaff digital skill levels vary\nResponsibility for decision updates may be unclear" as PeopleCause
 
 rectangle "PROCESS" as Process
-rectangle "Booking request and confirmation are not systemized\nCapacity must be revalidated before confirmation\nVisit and payment statuses may be mixed\nPayment reconciliation may be manual" as ProcessCause
+rectangle "Owner request and admin approval workflow may be inconsistent\nCapacity must be revalidated before approval\nPending slot hold and expiry policy is unresolved\nVisit and payment statuses may be mixed" as ProcessCause
 
 rectangle "TECHNOLOGY" as Technology
-rectangle "No centralized application in baseline\nNo structured slot-capacity validation\nNo gateway callback verification\nNo integrated monitoring and reporting" as TechnologyCause
+rectangle "No integrated self-service booking request flow in baseline\nNo structured admin review queue\nNo consistent slot-capacity validation\nNo gateway callback verification" as TechnologyCause
 
 rectangle "DATA" as Data
-rectangle "Owner and rabbit records may be duplicated\nMedical history may be fragmented\nBooking and invoice references may not be linked\nPayment evidence may be difficult to trace" as DataCause
+rectangle "Owner and rabbit records may be duplicated\nMedical history may be fragmented\nBooking request and admin decision may not be traceable\nBooking and invoice references may not be linked" as DataCause
 
 rectangle "MANAGEMENT & MEASUREMENT" as Management
-rectangle "No consolidated operational dashboard\nBooking and no-show indicators may be unclear\nPayment reconciliation is not consistently measured\nService performance is difficult to evaluate" as ManagementCause
+rectangle "No consolidated operational dashboard\nBooking decision time and no-show indicators may be unclear\nPayment reconciliation is not consistently measured\nService performance is difficult to evaluate" as ManagementCause
 
 rectangle "ENVIRONMENT & EXTERNAL SERVICES" as Environment
-rectangle "Internet or hosting may be unavailable\nGateway or notification provider may fail\nProvider callbacks may be delayed or duplicated\nStaff schedules may change" as EnvironmentCause
+rectangle "Internet or hosting may be unavailable\nGateway or notification provider may fail\nProvider callbacks may be delayed or duplicated\nStaff schedules may change after request submission" as EnvironmentCause
 
-rectangle "CORE PROBLEM\nRabbit Clinic and Care services are not yet integrated,\noperations are inefficient, and booking, payment,\nor follow-up information may be missed or difficult to trace." as Problem
+rectangle "CORE PROBLEM\nRabbit Clinic and Care services are not yet integrated;\nbooking requests, admin decisions, payment outcomes,\nand follow-up information may be missed or difficult to trace." as Problem
 
 People --> PeopleCause
 PeopleCause --> Problem
@@ -46,5 +46,4 @@ Management --> ManagementCause
 ManagementCause --> Problem
 Environment --> EnvironmentCause
 EnvironmentCause --> Problem
-
 @enduml
