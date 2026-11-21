@@ -1,0 +1,36 @@
+@startuml
+skinparam shadowing false
+title State Machine Diagram - Booking Lifecycle v1.1
+
+[*] --> MenungguKonfirmasi : owner submits request
+
+MenungguKonfirmasi --> Terkonfirmasi : admin approves\n[slot revalidated and available]
+MenungguKonfirmasi --> Ditolak : admin rejects\n[rejection reason recorded]
+MenungguKonfirmasi --> Dibatalkan : cancellation allowed by policy
+
+Terkonfirmasi --> DijadwalkanUlang : reschedule accepted
+DijadwalkanUlang --> Terkonfirmasi : new slot confirmed
+Terkonfirmasi --> Dibatalkan : cancellation allowed by policy
+Terkonfirmasi --> TidakHadir : slot passed without check-in
+Terkonfirmasi --> CheckIn : patient arrives
+
+CheckIn --> MenungguAntrean : check-in data and queue number saved
+MenungguAntrean --> SedangDilayani : called by staff
+SedangDilayani --> SelesaiDilayani : service record completed
+
+Ditolak --> [*]
+Dibatalkan --> [*]
+TidakHadir --> [*]
+SelesaiDilayani --> [*]
+
+note right of MenungguKonfirmasi
+  Booking request is not confirmed
+  until an authorized admin approves it.
+  Slot capacity is revalidated at approval.
+end note
+
+note bottom of SelesaiDilayani
+  Invoice/payment lifecycle is separate.
+  Payment does not change Booking state.
+end note
+@enduml

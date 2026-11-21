@@ -19,6 +19,13 @@ This folder contains versioned addenda to the original RabbitCare v1.0 documenta
 - [PRD Refinement v1.1 - PDF](PRD_Refinement_v1.1.pdf)
 - [PRD Change Log v1.1](PRD_Change_Log_v1.1.md)
 
-Refinement addenda record changes separately from the original baseline. They do not silently replace the source PDFs.
+### System Requirements
+- [SRD Refinement v1.1 - Markdown](SRD_Refinement_v1.1.md)
+- [SRD Refinement v1.1 - PDF](SRD_Refinement_v1.1.pdf)
+- [SRD Change Log v1.1](SRD_Change_Log_v1.1.md)
+
+## UML / PlantUML
+
+The updated technical diagrams are maintained separately in [`../../plantuml/refinement/`](../../plantuml/refinement/README.md). Original diagrams in the root `plantuml/` folder are preserved as the v1.0 baseline.
 
 **Current status:** Proposed refinement / Draft - pending stakeholder validation.

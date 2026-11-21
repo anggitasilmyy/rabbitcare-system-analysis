@@ -1,0 +1,65 @@
+@startuml
+skinparam shadowing false
+title Sequence Diagram - Payment Gateway and Verified Callback v1.1
+
+actor "Pemilik Kelinci" as Owner
+boundary "Owner Portal" as OUI
+control "API Gateway" as API
+control "Billing Service" as Billing
+control "Payment Service" as PS
+database "RabbitCare Database" as DB
+participant "Payment Gateway Adapter" as Adapter
+participant "Payment Gateway Provider" as PG
+control "Receipt Service" as Receipt
+control "Notification Service" as NS
+
+Owner -> OUI : Buka invoice dan pilih Bayar
+OUI -> API : POST /api/payments
+API -> Billing : validateInvoiceOwnership(invoiceId)
+Billing -> DB : query invoice and outstanding amount
+DB --> Billing : invoice data
+Billing --> PS : createPaymentAttempt(invoice, amount)
+PS -> DB : insert Payment(status=PENDING,\ninternalReference, idempotencyKey)
+DB --> PS : paymentId
+PS -> Adapter : createCheckout(payment data)
+Adapter -> PG : create transaction / checkout
+PG --> Adapter : provider transaction reference + checkout URL
+Adapter --> PS : provider response
+PS -> DB : save provider reference
+PS --> API : payment attempt + checkout instructions
+API --> OUI : checkout response
+Owner -> PG : Complete payment on provider checkout
+
+PG -> Adapter : POST callback / webhook
+Adapter -> Adapter : verify signature / provider authentication
+Adapter -> PS : processVerifiedCallback(event)
+PS -> DB : find event/reference and lock payment + invoice
+PS -> PS : validate reference, invoice, amount, currency, status
+
+alt Verified success and event is new
+  PS -> DB : insert callback event
+  PS -> DB : update Payment=PAID and Invoice=LUNAS
+  PS -> DB : COMMIT
+  PS -> Receipt : generateReceipt(invoiceId, paymentId)
+  Receipt -> DB : read verified payment and invoice
+  DB --> Receipt : transaction data
+  Receipt --> PS : receipt reference
+  PS -> NS : publish payment_completed
+  NS --> Owner : Notifikasi pembayaran berhasil
+else Verified pending / failed / cancelled
+  PS -> DB : record event and update allowed payment state
+  PS -> DB : COMMIT
+  PS --> Adapter : accepted / status recorded
+else Invalid callback or mismatched data
+  PS -> DB : record verification exception (no PAID update)
+  PS --> Adapter : reject / exception response
+end
+
+Owner -> OUI : Check payment status / receipt
+OUI -> API : GET /api/payments/{payment_id}
+API -> PS : getPaymentStatus()
+PS -> DB : query payment
+DB --> PS : status
+PS --> API : status + receipt if paid
+API --> OUI : payment result
+@enduml

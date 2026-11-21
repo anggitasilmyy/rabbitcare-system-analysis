@@ -1,0 +1,34 @@
+@startuml
+skinparam shadowing false
+title State Machine Diagram - Payment Attempt Lifecycle v1.1
+
+[*] --> Pending : payment attempt created
+
+Pending --> Paid : verified provider success
+Pending --> Failed : verified provider failure
+Pending --> Cancelled : verified provider cancellation
+
+Paid --> Refunded : refund confirmed\n[future scope / separate approval]
+
+Failed --> [*]
+Cancelled --> [*]
+Paid --> [*]
+Refunded --> [*]
+
+note right of Pending
+  Callback must pass provider authentication,
+  reference, invoice, amount and currency checks.
+  Repeated callback events are idempotent.
+end note
+
+note bottom of Paid
+  Receipt is issued only after verified PAID.
+  Invoice summary becomes LUNAS.
+  Booking lifecycle remains unchanged.
+end note
+
+note bottom of Refunded
+  Refund processing is not automatically
+  included in the MVP scope.
+end note
+@enduml

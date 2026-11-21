@@ -1,0 +1,81 @@
+@startuml
+skinparam shadowing false
+title Sequence Diagram - Booking Request and Admin Approval v1.1
+
+actor "Pemilik Kelinci" as Owner
+boundary "Owner Portal" as OUI
+control "API Gateway" as API
+control "Booking Service" as BS
+control "Schedule Service" as SS
+database "RabbitCare Database" as DB
+actor "Admin Klinik" as Admin
+boundary "Clinic Portal" as CUI
+control "Notification Service" as NS
+
+Owner -> OUI : Pilih pet, layanan, jadwal, slot
+OUI -> API : POST /api/bookings
+API -> BS : createBooking(request, ownerContext)
+BS -> BS : validateTokenRoleAndPetOwnership()
+BS -> SS : checkAvailability(scheduleId)
+SS -> DB : lock/check slot capacity
+DB --> SS : availability result
+SS --> BS : available
+
+alt Request valid and slot available
+  BS -> DB : INSERT booking(status=MENUNGGU_KONFIRMASI)
+  DB --> BS : bookingId + bookingCode
+  BS -> DB : COMMIT
+  BS -> NS : publish booking_submitted
+  NS --> Owner : Notifikasi pengajuan diterima
+  NS --> Admin : Notifikasi booking menunggu review
+  BS --> API : booking pending response
+  API --> OUI : 201 Created + booking status
+else Invalid request / slot unavailable
+  BS --> API : validation error / BOOKING_SLOT_UNAVAILABLE
+  API --> OUI : error response
+end
+
+Admin -> CUI : Buka review queue
+CUI -> API : GET /api/bookings?status=MENUNGGU_KONFIRMASI
+API -> BS : listPendingBookings()
+BS -> DB : query pending bookings
+DB --> BS : pending booking list
+BS --> API : list
+API --> CUI : review queue
+
+alt Admin approves
+  Admin -> CUI : Approve booking
+  CUI -> API : PATCH /api/bookings/{id}/confirm
+  API -> BS : approveBooking(id, adminContext)
+  BS -> DB : BEGIN + lock booking/schedule
+  BS -> DB : validate pending status and slot capacity
+  alt Slot still available
+    BS -> DB : update status=TERKONFIRMASI,\ndecided_by, decision_at
+    BS -> DB : insert audit log + COMMIT
+    BS -> NS : publish booking_approved
+    NS --> Owner : Notifikasi booking disetujui
+    BS --> API : approved
+  else Slot unavailable
+    BS -> DB : ROLLBACK
+    BS --> API : 409 BOOKING_SLOT_UNAVAILABLE
+  end
+else Admin rejects
+  Admin -> CUI : Reject + rejection reason
+  CUI -> API : PATCH /api/bookings/{id}/reject
+  API -> BS : rejectBooking(id, reason, adminContext)
+  BS -> DB : validate status and reason
+  BS -> DB : update status=DITOLAK,\nreason, decided_by, decision_at
+  BS -> DB : insert audit log + COMMIT
+  BS -> NS : publish booking_rejected
+  NS --> Owner : Notifikasi booking ditolak
+  BS --> API : rejected
+end
+
+Owner -> OUI : Refresh status booking
+OUI -> API : GET /api/bookings/{id}
+API -> BS : getBookingStatus()
+BS -> DB : query booking
+DB --> BS : current status
+BS --> API : status
+API --> OUI : status and decision details
+@enduml

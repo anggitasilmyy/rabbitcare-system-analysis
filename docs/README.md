@@ -1,6 +1,6 @@
 # RabbitCare Documentation
 
-This folder contains the original requirements and business analysis documents for the RabbitCare project, together with separately versioned refinement addenda. The original PDF files are retained in their existing locations and are not rewritten by the refinement process.
+This folder contains the original RabbitCare requirements and business analysis documents, together with separately versioned refinement addenda. Original v1.0 PDFs remain preserved in their existing locations.
 
 ## Requirements Documents
 
@@ -9,7 +9,7 @@ This folder contains the original requirements and business analysis documents f
 | [RabbitCare-BRD.pdf](requirements/RabbitCare-BRD.pdf) | Business problems, objectives, stakeholders, business requirements, business rules, target process, assumptions, risks, and acceptance criteria. |
 | [RabbitCare-MRD.pdf](requirements/RabbitCare-MRD.pdf) | Product background, market problems, target segments, personas, jobs-to-be-done, value proposition, market needs, and product assumptions. |
 | [RabbitCare-PRD.pdf](requirements/RabbitCare-PRD.pdf) | Product vision and goals, product users and scope, user journeys, feature requirements, UX requirements, product states, analytics, MVP priorities, release plan, dependencies, and acceptance criteria. |
-| [RabbitCare-SRD.pdf](requirements/RabbitCare-SRD.pdf) | System context, logical architecture, functional and non-functional requirements, API requirements, data requirements, authorization matrix, transaction rules, and technical constraints. |
+| [RabbitCare-SRD.pdf](requirements/RabbitCare-SRD.pdf) | System context, logical architecture, functional and non-functional requirements, API requirements, data requirements, authorization matrix, transaction rules, integration, deployment, testing, traceability, and system acceptance criteria. |
 
 ## Business Analysis
 
@@ -31,6 +31,13 @@ Refinement documents record decisions and changes separately from the original v
 - [PRD Refinement v1.1 - Markdown](refinement/PRD_Refinement_v1.1.md)
 - [PRD Refinement v1.1 - PDF](refinement/PRD_Refinement_v1.1.pdf)
 - [PRD Change Log v1.1](refinement/PRD_Change_Log_v1.1.md)
+- [SRD Refinement v1.1 - Markdown](refinement/SRD_Refinement_v1.1.md)
+- [SRD Refinement v1.1 - PDF](refinement/SRD_Refinement_v1.1.pdf)
+- [SRD Change Log v1.1](refinement/SRD_Change_Log_v1.1.md)
+
+## UML / PlantUML
+
+Refined technical diagrams are stored separately from the original baseline diagrams in [`../plantuml/refinement/`](../plantuml/refinement/README.md).
 
 ## Document Baseline
 

@@ -1,0 +1,59 @@
+@startuml
+skinparam shadowing false
+skinparam componentStyle rectangle
+title Component Diagram - RabbitCare Booking Approval and Gateway Payment v1.1
+
+actor "Pemilik Kelinci" as Owner
+actor "Admin Klinik" as Admin
+actor "Dokter / Groomer" as CareStaff
+actor "Manajer Klinik" as Manager
+
+component "Owner Portal" as OwnerPortal
+component "Clinic Portal" as ClinicPortal
+component "Manager Dashboard" as ManagerPortal
+component "API Gateway" as API
+component "Authentication & Authorization" as Auth
+component "Pet Profile Service" as Pet
+component "Schedule Service" as Schedule
+component "Booking Service\n(Request / Approval / Rejection)" as Booking
+component "Queue & Clinical Services" as Clinical
+component "Billing Service" as Billing
+component "Payment Service" as Payment
+component "Payment Gateway Adapter\n(Checkout / Callback Verification)" as Adapter
+component "Receipt Service" as Receipt
+component "Notification Service" as Notification
+database "RabbitCare Relational Database" as DB
+cloud "Payment Gateway Provider" as Gateway
+cloud "Email / WhatsApp / Push Provider" as NotifProvider
+
+Owner --> OwnerPortal
+Admin --> ClinicPortal
+CareStaff --> ClinicPortal
+Manager --> ManagerPortal
+
+OwnerPortal --> API
+ClinicPortal --> API
+ManagerPortal --> API
+API --> Auth
+API --> Pet
+API --> Schedule
+API --> Booking
+API --> Clinical
+API --> Billing
+API --> Payment
+
+Booking --> Schedule
+Booking --> Notification : submitted / approved / rejected events
+Booking --> DB
+Schedule --> DB
+Pet --> DB
+Clinical --> DB
+Billing --> DB
+Payment --> DB
+Payment --> Adapter
+Adapter --> Gateway : create checkout / receive callback
+Payment --> Receipt : verified PAID
+Receipt --> DB
+Notification --> NotifProvider
+Billing --> Payment : invoice payment request
+@enduml

@@ -1,0 +1,166 @@
+@startuml
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+hide circle
+
+title Class Diagram - RabbitCare Booking and Payment Refinement v1.1
+
+abstract class User {
+  - idUser: UUID
+  - nama: String
+  - noTelepon: String
+  - email: String
+  - passwordHash: String
+  - statusAkun: String
+}
+
+class PemilikKelinci
+abstract class PetugasKlinik
+class AdminResepsionis {
+  + approveBooking()
+  + rejectBooking()
+  + monitorPayment()
+}
+class DokterHewan
+class Groomer
+class ManajerKlinik
+
+class Kelinci {
+  - idKelinci: UUID
+  - nomorRekamMedis: String
+  - nama: String
+}
+
+class Layanan {
+  - idLayanan: UUID
+  - namaLayanan: String
+  - durasiMenit: Integer
+  - hargaDasar: Decimal
+}
+
+class JadwalLayanan {
+  - idJadwal: UUID
+  - tanggal: Date
+  - kapasitas: Integer
+  - status: String
+}
+
+class Booking {
+  - idBooking: UUID
+  - nomorBooking: String
+  - dibuatPada: DateTime
+  - status: StatusBooking
+  - decidedByUserId: UUID?
+  - decisionAt: DateTime?
+  - rejectionReason: Text?
+}
+
+class Invoice {
+  - invoiceId: UUID
+  - nomorTagihan: String
+  - total: Decimal
+  - status: StatusInvoice
+}
+
+class InvoiceItem {
+  - idItem: UUID
+  - deskripsi: String
+  - qty: Decimal
+  - hargaSatuan: Decimal
+  - jumlah: Decimal
+}
+
+class Payment {
+  - paymentId: UUID
+  - invoiceId: UUID
+  - providerCode: String
+  - internalReference: String
+  - providerTransactionReference: String?
+  - idempotencyKey: String
+  - amount: Decimal
+  - currency: String
+  - status: StatusPayment
+  - initiatedAt: DateTime
+  - paidAt: DateTime?
+}
+
+class PaymentCallbackEvent {
+  - eventId: UUID
+  - providerCode: String
+  - providerEventReference: String?
+  - eventType: String
+  - receivedAt: DateTime
+  - verificationStatus: String
+  - processingStatus: String
+  - payloadHash: String?
+}
+
+class Receipt {
+  - receiptId: UUID
+  - invoiceId: UUID
+  - paymentId: UUID
+  - issuedAt: DateTime
+}
+
+enum StatusBooking {
+  MENUNGGU_KONFIRMASI
+  TERKONFIRMASI
+  DITOLAK
+  CHECK_IN
+  MENUNGGU_ANTREAN
+  SEDANG_DILAYANI
+  SELESAI_DILAYANI
+  DIBATALKAN
+  DIJADWALKAN_ULANG
+  TIDAK_HADIR
+}
+
+enum StatusInvoice {
+  BELUM_DIBAYAR
+  LUNAS
+}
+
+enum StatusPayment {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+User <|-- PemilikKelinci
+User <|-- PetugasKlinik
+PetugasKlinik <|-- AdminResepsionis
+PetugasKlinik <|-- DokterHewan
+PetugasKlinik <|-- Groomer
+PetugasKlinik <|-- ManajerKlinik
+
+PemilikKelinci "1" -- "0..*" Kelinci : owns
+PemilikKelinci "1" -- "0..*" Booking : submits
+Kelinci "1" -- "0..*" Booking
+Layanan "1" -- "0..*" JadwalLayanan
+JadwalLayanan "1" -- "0..*" Booking : selected slot
+AdminResepsionis "1" -- "0..*" Booking : decides
+Booking "1" -- "0..1" Invoice
+Invoice "1" *-- "1..*" InvoiceItem
+Invoice "1" -- "0..*" Payment : payment attempts
+Payment "1" -- "0..*" PaymentCallbackEvent : provider events
+Payment "1" -- "0..1" Receipt : verified success only
+
+Booking --> StatusBooking
+Invoice --> StatusInvoice
+Payment --> StatusPayment
+
+note right of Booking
+  Booking status is an operational lifecycle.
+  Payment status is not stored on Booking.
+  Rejection reason is required for DITOLAK.
+end note
+
+note right of Payment
+  One Payment row represents one attempt.
+  An Invoice may have multiple attempts.
+  Only a verified successful attempt can
+  move the Invoice to LUNAS.
+end note
+@enduml

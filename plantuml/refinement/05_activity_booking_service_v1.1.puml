@@ -1,0 +1,72 @@
+@startuml
+skinparam shadowing false
+title Activity Diagram - Booking Request and Admin Decision v1.1
+
+|Pemilik Kelinci|
+start
+:Login;
+:Memilih profil kelinci;
+:Memilih layanan, petugas, tanggal, dan slot;
+:Mengirim pengajuan booking;
+
+|Sistem|
+:Validasi token dan kepemilikan kelinci;
+:Validasi layanan, jadwal, dan kapasitas slot;
+if (Data valid dan slot tersedia?) then (Ya)
+  :Lock jadwal/kapasitas dalam transaksi;
+  :Membuat booking ID dan booking code;
+  :Menyimpan status MENUNGGU_KONFIRMASI;
+  :Commit transaksi;
+  :Menerbitkan event booking_submitted;
+  :Mengirim notifikasi pengajuan;
+else (Tidak)
+  :Rollback transaksi;
+  :Menampilkan alasan kegagalan / slot tidak tersedia;
+  |Pemilik Kelinci|
+  :Memperbaiki pilihan atau mengakhiri proses;
+  stop
+endif
+
+|Pemilik Kelinci|
+:Melihat status menunggu konfirmasi;
+
+|Admin Klinik|
+:Membuka review queue;
+:Memeriksa detail pengajuan;
+if (Pengajuan disetujui?) then (Approve)
+  |Sistem|
+  :Validasi ulang status dan kapasitas slot;
+  :Lock jadwal/kapasitas dalam transaksi;
+  if (Slot masih tersedia?) then (Ya)
+    :Mengubah status menjadi TERKONFIRMASI;
+    :Menyimpan admin dan waktu keputusan;
+    :Mencatat audit log;
+    :Commit transaksi;
+    :Menerbitkan event booking_approved;
+    :Mengirim notifikasi persetujuan;
+    |Pemilik Kelinci|
+    :Melihat booking terkonfirmasi;
+    stop
+  else (Tidak)
+    :Rollback approval;
+    :Mengembalikan BOOKING_SLOT_UNAVAILABLE;
+    |Admin Klinik|
+    :Meninjau alternatif atau menolak pengajuan;
+    stop
+  endif
+else (Reject)
+  |Admin Klinik|
+  :Mengisi alasan penolakan;
+  |Sistem|
+  :Memvalidasi alasan dan status booking;
+  :Mengubah status menjadi DITOLAK;
+  :Menyimpan admin, waktu, dan alasan;
+  :Mencatat audit log;
+  :Commit transaksi;
+  :Menerbitkan event booking_rejected;
+  :Mengirim notifikasi penolakan;
+  |Pemilik Kelinci|
+  :Melihat status ditolak dan alasan;
+  stop
+endif
+@enduml

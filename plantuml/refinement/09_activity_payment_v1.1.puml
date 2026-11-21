@@ -1,0 +1,59 @@
+@startuml
+skinparam shadowing false
+title Activity Diagram - Invoice Payment via Gateway v1.1
+
+|Sistem|
+start
+:Menerbitkan / menampilkan invoice;
+:Menyimpan invoice berstatus BELUM_DIBAYAR;
+
+|Pemilik Kelinci|
+:Membuka invoice;
+:Memilih Bayar melalui Gateway;
+
+|Sistem|
+:Validasi kepemilikan, invoice, dan outstanding amount;
+if (Invoice belum lunas dan valid?) then (Ya)
+  :Membuat payment attempt berstatus PENDING;
+  :Menyimpan internal reference dan idempotency key;
+  :Meminta gateway membuat checkout;
+else (Tidak)
+  :Menampilkan error invoice;
+  stop
+endif
+
+|Payment Gateway|
+:Memproses pembayaran pemilik;
+:Mengirim callback / webhook ke RabbitCare;
+
+|Sistem|
+:Memverifikasi signature / autentikasi callback;
+:Memeriksa reference, invoice, amount, currency, dan status;
+:Memeriksa event duplikat;
+if (Callback valid dan transaksi berhasil?) then (Ya)
+  :Lock payment dan invoice;
+  :Update Payment = PAID;
+  :Update Invoice = LUNAS;
+  :Simpan callback event dan audit;
+  :Commit transaksi;
+  :Menerbitkan receipt;
+  :Mengirim notifikasi pembayaran berhasil;
+  |Pemilik Kelinci|
+  :Melihat status PAID dan receipt;
+  stop
+else (Tidak)
+  if (Callback valid tetapi pending?) then (Pending)
+    :Pertahankan Payment = PENDING;
+    :Invoice tetap BELUM_DIBAYAR;
+  else (Failed / Invalid)
+    :Update FAILED/CANCELLED jika status valid;
+    :Atau catat exception bila callback invalid;
+    :Invoice tetap BELUM_DIBAYAR;
+  endif
+  :Tidak menerbitkan receipt lunas;
+  :Catat status untuk monitoring;
+  |Pemilik Kelinci|
+  :Melihat status transaksi;
+  stop
+endif
+@enduml
