@@ -1,0 +1,87 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam defaultFontName Arial
+skinparam defaultTextAlignment center
+skinparam ArrowColor #64748B
+skinparam ArrowThickness 1.2
+skinparam package {
+  BorderColor #94A3B8
+  FontColor #0F172A
+  BackgroundColor #F8FAFC
+}
+skinparam rectangle {
+  RoundCorner 10
+  BorderColor #64748B
+  FontColor #0F172A
+  BackgroundColor #FFFFFF
+}
+title RabbitCare Booking Process Comparison\nBaseline Model v1.0 vs Refined To-Be Model v1.2
+
+package "BASELINE MODEL (v1.0)\nRepository model — not field-validated" as Baseline {
+  rectangle "Owner logs in and selects\nrabbit, service, staff,\ndate, and time" as B1
+  rectangle "System checks staff schedule\nand slot capacity" as B2
+  rectangle "System displays booking summary\nand estimated cost" as B3
+  rectangle "Owner confirms booking" as B4
+  rectangle "System saves booking as\nTERKONFIRMASI and sends\nnotifications" as B5
+
+  B1 -down-> B2
+  B2 -down-> B3 : slot available
+  B3 -down-> B4
+  B4 -down-> B5
+  note bottom of B5
+    The baseline activity and sequence diagrams
+    move directly from Owner confirmation to
+    TERKONFIRMASI.
+
+    Admin confirmation appears separately in
+    the baseline clinic use-case diagram, but
+    is not connected as a pending-review step
+    in the baseline activity / sequence flow.
+  end note
+}
+
+package "REFINED TO-BE MODEL (v1.2)\nProposed workflow — pending stakeholder validation" as ToBe {
+  rectangle "Owner selects rabbit, service,\ndate, and available slot" as T1
+  rectangle "Owner reviews and submits\nbooking request" as T2
+  rectangle "System validates owner access,\nrabbit ownership, required data,\nservice rules, and current capacity" as T3
+  rectangle "System creates booking request\nwith status\nMENUNGGU_KONFIRMASI" as T4
+  rectangle "Admin reviews pending request\nand relevant clinic capacity" as T5
+  rectangle "System locks booking / capacity,\nchecks pending status, and\nrevalidates slot capacity" as T6
+  rectangle "APPROVE\nSet TERKONFIRMASI;\nrecord Admin and decision time" as T7
+  rectangle "REJECT\nSet DITOLAK;\nrecord reason, Admin, and time" as T8
+  rectangle "CONFLICT\nRollback approval and return\nslot-unavailable / already-decided\nresult for Admin follow-up" as T9
+  rectangle "Owner views booking decision;\nrejection reason is shown\nwhen applicable" as T10
+  rectangle "Validation error / slot unavailable\nOwner corrects the request or\nselects another slot; no request\nis created yet" as T11
+
+  T1 -down-> T2
+  T2 -down-> T3
+  T3 -down-> T4 : valid request and slot available
+  T3 -left-> T11 : invalid or unavailable
+  T11 -up-> T1 : correct / select another slot
+  T4 -down-> T5
+  T5 -down-> T6 : Admin chooses approval
+  T6 -down-> T7 : still pending and capacity available
+  T6 -right-> T9 : slot unavailable or already decided
+  T5 -left-> T8 : Admin chooses rejection
+  T7 -down-> T10
+  T8 -down-> T10
+  T9 -down-> T5 : review / follow-up
+  note bottom of T10
+    Submission does not confirm the booking.
+    Approval requires capacity revalidation.
+    Pending slot hold / expiry policy and any
+    separate Admin-created booking flow remain
+    subject to stakeholder validation.
+  end note
+}
+
+note bottom
+  Analysis boundary:
+  This diagram compares the repository's baseline v1.0 model with its proposed v1.2 refinement.
+  It must not be presented as an observed As-Is clinic process unless supported by field research
+  or stakeholder confirmation.
+end note
+@enduml
