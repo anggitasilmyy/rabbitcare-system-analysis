@@ -1,0 +1,23 @@
+@startuml
+skinparam shadowing false
+title State Machine Diagram - Service Execution Lifecycle v1.2
+
+[*] --> BelumDimulai : service execution is recorded for a Visit
+BelumDimulai --> SedangDilaksanakan : authorized staff starts the service
+SedangDilaksanakan --> Selesai : service result is recorded and completed
+
+Selesai --> [*]
+
+note right of BelumDimulai
+  Each PelaksanaanLayanan represents one recorded service
+  performed or planned within a Visit.
+  The execution status is independent from Visit status.
+end note
+
+note bottom
+  State names are proposed modeling values.
+  Confirm allowed transitions and responsible roles with stakeholders.
+  A service execution update must not overwrite Visit, Booking,
+  Invoice, or Payment status. Cancellation/hold states are not defined here.
+end note
+@enduml

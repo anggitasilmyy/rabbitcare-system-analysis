@@ -313,6 +313,11 @@ Ketentuan kontrak tambahan:
 - Akses invoice dan payment harus diverifikasi terhadap kepemilikan Owner atau role Admin yang berwenang.
 - Callback provider menggunakan autentikasi provider-specific dan tidak menggunakan access token Owner.
 - Format request/response final mengikuti standar API pada SRD v1.0 dan dokumentasi provider yang dipilih.
+- Untuk endpoint `POST /api/payments`, client wajib mengirim `Idempotency-Key` yang unik untuk setiap aksi inisiasi pembayaran.
+- Sistem menyimpan dan memvalidasi key tersebut dalam ruang lingkup Owner dan invoice terkait.
+- Jika request dikirim ulang menggunakan key yang sama, sistem harus mengembalikan payment attempt yang sudah terbentuk tanpa membuat attempt baru.
+- Untuk membuat payment attempt baru secara sengaja, client harus menggunakan key yang berbeda.
+- `payment_id` dan `internal_reference` tetap dihasilkan oleh sistem.
 
 **Contoh request rejection**
 ```json
@@ -484,6 +489,8 @@ Jika slot tidak tersedia, transaksi approval dibatalkan dan booking tidak menjad
 5. Commit record internal.
 6. Minta gateway membuat transaksi/checkout.
 7. Simpan provider reference dan instruksi checkout. Jika pemanggilan provider gagal/timeout, simpan status/exception yang dapat ditindaklanjuti tanpa menandai invoice lunas.
+
+Jika request ke payment gateway mengalami timeout atau menghasilkan respons yang tidak dapat dipastikan, sistem harus mempertahankan payment attempt dalam status `PENDING` dan menandainya untuk pemeriksaan lebih lanjut. Sistem tidak boleh langsung membuat payment attempt baru sebelum memastikan apakah transaksi sebelumnya berhasil dibuat oleh provider. Jika tersedia, sistem menggunakan mekanisme server-to-server status inquiry untuk memverifikasi transaksi. Jika status belum dapat dipastikan, transaksi masuk ke exception handling untuk tindak lanjut.
 
 **Verified callback processing**
 1. Terima callback dan catat metadata penerimaan sebagai event belum terverifikasi bila diperlukan untuk audit.

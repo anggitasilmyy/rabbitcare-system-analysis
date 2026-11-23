@@ -1,0 +1,126 @@
+@startuml
+skinparam shadowing false
+title Sequence Diagram - Payment Gateway and Verified Callback v1.2
+
+actor "Pemilik Kelinci" as Owner
+boundary "Owner Portal" as OUI
+control "API Gateway" as API
+control "Billing Service" as Billing
+control "Payment Service" as PS
+database "RabbitCare Database" as DB
+participant "Payment Gateway Adapter" as Adapter
+participant "Payment Gateway Provider" as PG
+control "Receipt Service" as Receipt
+control "Notification Service" as NS
+
+Owner -> OUI : Buka invoice yang telah diterbitkan
+Owner -> OUI : Pilih Bayar
+OUI -> API : POST /api/payments + Idempotency-Key
+API -> Billing : validateInvoiceOwnership(invoiceId, ownerContext)
+Billing -> DB : read invoice, outstanding amount, currency
+DB --> Billing : invoice data
+Billing --> PS : initiatePayment(invoice, serverCalculatedAmount, key)
+PS -> DB : lookup payment attempt by Idempotency-Key
+
+alt Idempotency-Key already exists
+  DB --> PS : existing payment attempt
+  PS --> API : return existing attempt (no new attempt)
+  API --> OUI : existing payment attempt + current status
+else New Idempotency-Key
+  PS -> DB : insert Payment(status=PENDING, internalReference, key)
+  DB --> PS : paymentId
+  PS -> DB : COMMIT payment attempt
+  PS -> Adapter : createCheckout(payment data)
+  Adapter -> PG : create transaction / checkout
+  alt Provider creates checkout successfully
+    PG --> Adapter : provider reference + checkout URL
+    Adapter -> PS : save provider transaction reference
+    PS -> DB : update provider reference
+    DB --> PS : saved
+    PS --> API : payment attempt + checkout instructions
+    API --> OUI : checkout response
+    Owner -> PG : Complete payment on provider checkout
+  else Provider returns a definite creation failure
+    PG --> Adapter : provider error / rejection
+    Adapter -> PS : record provider error / exception
+    PS -> DB : save failure details for follow-up
+    PS --> API : gateway creation failure / exception status
+    API --> OUI : show payment initiation result
+  else Provider request times out / outcome is unknown
+    PG --> Adapter : timeout / no conclusive response
+    Adapter -> PS : keep attempt PENDING; mark outcome uncertain
+    PS -> DB : save PENDING and exception metadata
+    opt Provider supports server-to-server status inquiry
+      Adapter -> PG : inquire transaction by reference / merchant reference
+      PG --> Adapter : transaction status if available
+      Adapter -> PS : verify and persist inquiry result
+      PS -> DB : update provider reference / verified status
+    end
+    PS --> API : PENDING / requires follow-up
+    API --> OUI : show pending status
+    note over PS,Adapter
+      Do not create another payment attempt until the previous
+      provider transaction is confirmed or ruled out.
+      If the outcome remains unknown, send it to exception handling.
+    end note
+  end
+end
+
+opt Provider callback / verified status event arrives asynchronously
+  PG -> Adapter : POST callback / webhook
+  Adapter -> Adapter : verify signature / provider authentication
+  Adapter -> PS : process callback with verification result
+  PS -> DB : record callback event / check deduplication
+
+  alt Callback event already processed
+    DB --> PS : duplicate event
+    PS --> Adapter : acknowledge duplicate; no repeated side effects
+  else Callback invalid or reference/amount/currency mismatch
+    PS -> DB : record verification exception only
+    PS --> Adapter : reject / exception response
+  else Verified successful provider result
+    PS -> DB : BEGIN + lock Payment and Invoice
+    PS -> DB : check invoice settlement and payment state
+    alt Invoice not yet paid
+      PS -> DB : update Payment=PAID and Invoice=LUNAS
+      PS -> DB : record event/audit + COMMIT
+      PS -> Receipt : issueReceiptOnce(invoiceId, paymentId)
+      Receipt -> DB : insert receipt with unique invoice/payment constraint
+      DB --> Receipt : receipt reference / existing receipt
+      Receipt --> PS : receipt reference
+      PS -> NS : publish payment_completed (after commit)
+      NS --> Owner : Notifikasi pembayaran berhasil
+    else Invoice already paid by another attempt
+      PS -> DB : mark additional successful attempt as exception
+      PS -> DB : record event/audit + COMMIT
+      PS --> Adapter : accepted; reconciliation required
+      note right of PS
+        Do not create a second receipt.
+        Do not automatically refund without an approved policy.
+      end note
+    end
+  else Verified pending / failed / cancelled result
+    PS -> DB : update allowed Payment status
+    PS -> DB : keep Invoice BELUM_DIBAYAR unless already LUNAS
+    PS -> DB : record event/audit + COMMIT
+    PS --> Adapter : accepted / status recorded
+  end
+end
+
+Owner -> OUI : Check payment status / receipt
+OUI -> API : GET /api/payments/{payment_id}
+API -> PS : getPaymentStatus(ownerContext)
+PS -> DB : query payment and receipt
+DB --> PS : status + receipt if issued
+PS --> API : payment result
+API --> OUI : payment result
+
+note over Adapter,PS
+  A browser redirect is not proof of payment.
+  Only a verified provider result can update Payment and Invoice.
+  The policy for a new idempotency key while another attempt is active
+  remains open pending stakeholder validation. A callback may arrive later;
+  until then the Owner may continue to see PENDING / an unresolved outcome.
+  Callback processing must be idempotent.
+end note
+@enduml

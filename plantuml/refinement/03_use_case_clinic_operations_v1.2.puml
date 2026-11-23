@@ -1,0 +1,89 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam actorStyle awesome
+title Use Case Detail - Clinic Operations v1.2
+
+actor "Admin / Resepsionis" as Admin
+actor "Dokter Hewan" as Doctor
+actor "Groomer / Pet Care Staff" as Groomer
+actor "Manajer Klinik" as Manager
+actor "Payment Gateway Provider" as Gateway
+
+rectangle "Clinic Operations Portal - RabbitCare" {
+  usecase "Login Petugas" as C1
+  usecase "Kelola Data Pemilik" as C2
+  usecase "Kelola Data Pasien Kelinci" as C3
+  usecase "Kelola Jenis Layanan dan Harga" as C4
+  usecase "Kelola Jadwal Dokter / Groomer" as C5
+  usecase "Lihat Review Queue\nBooking Pending" as C6
+  usecase "Periksa Detail\nPengajuan Booking" as C7
+  usecase "Setujui Pengajuan Booking" as C8
+  usecase "Tolak Pengajuan Booking" as C9
+  usecase "Validasi Ulang\nKapasitas Slot" as C10
+  usecase "Catat Alasan\nPenolakan" as C11
+  usecase "Check-in Pasien" as C12
+  usecase "Kelola Antrean" as C13
+  usecase "Lihat Riwayat Kesehatan" as C14
+  usecase "Catat Pemeriksaan / Diagnosis" as C15
+  usecase "Catat Vaksinasi" as C16
+  usecase "Catat Hasil Grooming" as C17
+  usecase "Rujuk Temuan ke Dokter" as C18
+  usecase "Buat Invoice" as C19
+  usecase "Monitor Status Transaksi Gateway" as C20
+  usecase "Tinjau Payment Exception" as C21
+  usecase "Lihat Dashboard dan Laporan" as C22
+  usecase "Verifikasi Callback Gateway" as C23
+}
+
+Admin -- C1
+Admin -- C2
+Admin -- C3
+Admin -- C4
+Admin -- C5
+Admin -- C6
+Admin -- C7
+Admin -- C8
+Admin -- C9
+Admin -- C12
+Admin -- C13
+Admin -- C19
+Admin -- C20
+Admin -- C21
+
+Doctor -- C1
+Doctor -- C13
+Doctor -- C14
+Doctor -- C15
+Doctor -- C16
+
+Groomer -- C1
+Groomer -- C13
+Groomer -- C17
+Groomer -- C18
+
+Manager -- C1
+Manager -- C20
+Manager -- C22
+Gateway -- C23
+
+C6 .> C7 : <<include>>
+C8 .> C10 : <<include>>
+C9 .> C11 : <<include>>
+C20 .> C21 : <<extend>>\n(jika ada exception)
+
+note bottom of C6
+  Review queue contains owner-submitted requests
+  with status MENUNGGU_KONFIRMASI.
+end note
+
+note bottom of C20
+  Admin/Manager monitor gateway outcomes.
+  They do not manually mark an unverified transaction PAID.
+end note
+
+note bottom of C8
+  A booking becomes TERKONFIRMASI only if
+  the request is still pending and capacity is available.
+end note
+@enduml

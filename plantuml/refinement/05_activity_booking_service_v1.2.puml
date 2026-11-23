@@ -1,0 +1,92 @@
+@startuml
+skinparam shadowing false
+title Activity Diagram - Owner Booking Request and Admin Decision v1.2
+
+|Pemilik Kelinci|
+start
+:Login ke Owner Portal;
+:Memilih profil kelinci;
+:Memilih layanan, petugas (jika relevan), tanggal, dan slot;
+:Meninjau ringkasan pengajuan;
+:Mengirim pengajuan booking;
+
+|Sistem|
+:Validasi token, kepemilikan kelinci,
+data wajib, layanan, dan jadwal;
+if (Data pengajuan valid?) then (Ya)
+  :Mulai transaksi database;
+  :Lock data jadwal / kapasitas;
+  :Validasi kapasitas slot saat ini;
+  if (Slot tersedia?) then (Ya)
+    :Membuat booking ID dan booking code;
+    :Menyimpan status MENUNGGU_KONFIRMASI;
+    :Menyimpan data pengajuan;
+    :Commit transaksi;
+    :Menerbitkan event booking_submitted;
+    :Mengirim notifikasi bahwa pengajuan diterima;
+  else (Tidak)
+    :Rollback transaksi;
+    :Menampilkan slot tidak tersedia;
+    |Pemilik Kelinci|
+    :Memilih slot lain atau mengakhiri proses;
+    stop
+  endif
+else (Tidak)
+  :Menampilkan validation error;
+  |Pemilik Kelinci|
+  :Memperbaiki data pengajuan;
+  stop
+endif
+
+|Pemilik Kelinci|
+:Melihat status MENUNGGU_KONFIRMASI;
+
+|Admin Klinik|
+:Membuka review queue;
+:Memeriksa detail pengajuan;
+if (Admin memilih approve?) then (Ya)
+  |Sistem|
+  :Mulai transaksi approval;
+  :Lock booking dan data kapasitas;
+  :Validasi status masih MENUNGGU_KONFIRMASI;
+  :Validasi ulang kapasitas slot;
+  if (Booking masih pending dan slot tersedia?) then (Ya)
+    :Mengubah status menjadi TERKONFIRMASI;
+    :Menyimpan admin dan waktu keputusan;
+    :Mencatat audit log;
+    :Commit transaksi;
+    :Menerbitkan event booking_approved;
+    :Mengirim notifikasi persetujuan;
+    |Pemilik Kelinci|
+    :Melihat booking TERKONFIRMASI;
+    stop
+  else (Tidak)
+    :Rollback approval;
+    :Mengembalikan BOOKING_SLOT_UNAVAILABLE
+    atau BOOKING_ALREADY_DECIDED;
+    |Admin Klinik|
+    :Meninjau pengajuan dan tindak lanjut;
+    stop
+  endif
+else (Reject)
+  |Admin Klinik|
+  :Mengisi alasan penolakan;
+  |Sistem|
+  :Validasi alasan dan status masih pending;
+  :Mengubah status menjadi DITOLAK;
+  :Menyimpan admin, waktu, dan alasan;
+  :Mencatat audit log;
+  :Commit transaksi;
+  :Menerbitkan event booking_rejected;
+  :Mengirim notifikasi penolakan;
+  |Pemilik Kelinci|
+  :Melihat status DITOLAK dan alasan;
+  stop
+endif
+
+note bottom
+  Submission creates a pending request, not a confirmed appointment.
+  Pending slot hold/expiry policy remains subject to stakeholder validation.
+  Any separate admin-created booking workflow is outside this confirmed flow.
+end note
+@enduml

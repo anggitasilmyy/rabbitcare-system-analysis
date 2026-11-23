@@ -1,0 +1,257 @@
+@startuml
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+hide circle
+title Class Diagram - RabbitCare Booking, Visit, and Payment Refinement v1.2
+
+abstract class User {
+  - idUser: UUID
+  - nama: String
+  - noTelepon: String
+  - email: String
+  - passwordHash: String
+  - statusAkun: String
+}
+class PemilikKelinci
+abstract class PetugasKlinik
+class AdminResepsionis {
+  + reviewBooking()
+  + approveBooking()
+  + rejectBooking()
+  + monitorPayment()
+}
+class DokterHewan
+class Groomer
+class ManajerKlinik
+
+class Kelinci {
+  - idKelinci: UUID
+  - nomorRekamMedis: String
+  - nama: String
+}
+class Layanan {
+  - idLayanan: UUID
+  - namaLayanan: String
+  - durasiMenit: Integer
+  - hargaDasar: Decimal
+}
+class JadwalLayanan {
+  - idJadwal: UUID
+  - tanggal: Date
+  - jamMulai: Time
+  - jamSelesai: Time
+  - kapasitas: Integer
+  - status: String
+}
+
+class Booking {
+  - idBooking: UUID
+  - nomorBooking: String
+  - dibuatPada: DateTime
+  - status: StatusBooking
+  - decidedByUserId: UUID?
+  - decisionAt: DateTime?
+  - rejectionReason: Text?
+}
+
+class Visit {
+  - visitId: UUID
+  - visitDate: Date
+  - status: StatusVisit
+  - checkedInAt: DateTime?
+  - startedAt: DateTime?
+  - closedAt: DateTime?
+}
+class PelaksanaanLayanan {
+  - serviceExecutionId: UUID
+  - status: StatusPelaksanaanLayanan
+  - startedAt: DateTime?
+  - completedAt: DateTime?
+  - executionNotes: Text?
+}
+class CheckIn {
+  - idCheckIn: UUID
+  - waktuDatang: DateTime
+  - beratAwal: Decimal
+  - keluhanAwal: Text
+  - nomorAntrean: String
+}
+class RekamMedis {
+  - idRekamMedis: UUID
+  - tanggalPemeriksaan: DateTime
+  - anamnesis: Text
+  - pemeriksaanFisik: Text
+  - diagnosis: Text
+  - tindakan: Text
+  - rekomendasi: Text
+}
+class CatatanVaksinasi {
+  - idVaksinasi: UUID
+  - jenisVaksin: String
+  - tanggalPemberian: Date
+  - dosis: String
+  - tanggalBerikutnya: Date
+}
+class CatatanGrooming {
+  - idGrooming: UUID
+  - tanggalGrooming: DateTime
+  - tindakan: Text
+  - temuan: Text
+  - rekomendasi: Text
+}
+
+class Invoice {
+  - invoiceId: UUID
+  - nomorTagihan: String
+  - total: Decimal
+  - currency: String
+  - status: StatusInvoice
+}
+class InvoiceItem {
+  - idItem: UUID
+  - deskripsi: String
+  - qty: Decimal
+  - hargaSatuan: Decimal
+  - jumlah: Decimal
+  - sourceType: String
+  - sourceReferenceId: UUID?
+}
+class Payment {
+  - paymentId: UUID
+  - invoiceId: UUID
+  - providerCode: String
+  - internalReference: String
+  - providerTransactionReference: String?
+  - idempotencyKey: String
+  - amount: Decimal
+  - currency: String
+  - status: StatusPayment
+  - initiatedAt: DateTime
+  - paidAt: DateTime?
+}
+class PaymentCallbackEvent {
+  - eventId: UUID
+  - providerCode: String
+  - providerEventReference: String?
+  - paymentId: UUID?
+  - eventType: String
+  - receivedAt: DateTime
+  - verificationStatus: String
+  - processingStatus: String
+  - payloadHash: String?
+}
+class Receipt {
+  - receiptId: UUID
+  - receiptNumber: String
+  - invoiceId: UUID
+  - paymentId: UUID
+  - issuedAt: DateTime
+}
+
+enum StatusBooking {
+  MENUNGGU_KONFIRMASI
+  TERKONFIRMASI
+  DITOLAK
+  DIBATALKAN
+  DIJADWALKAN_ULANG
+}
+enum StatusVisit {
+  BELUM_CHECK_IN
+  CHECKED_IN
+  MENUNGGU_ANTREAN
+  BERLANGSUNG
+  SELESAI
+  TIDAK_HADIR
+}
+enum StatusPelaksanaanLayanan {
+  BELUM_DIMULAI
+  SEDANG_DILAKSANAKAN
+  SELESAI
+  DIBATALKAN
+}
+enum StatusInvoice {
+  BELUM_DIBAYAR
+  LUNAS
+}
+enum StatusPayment {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+User <|-- PemilikKelinci
+User <|-- PetugasKlinik
+PetugasKlinik <|-- AdminResepsionis
+PetugasKlinik <|-- DokterHewan
+PetugasKlinik <|-- Groomer
+PetugasKlinik <|-- ManajerKlinik
+
+PemilikKelinci "1" -- "0..*" Kelinci : owns
+PemilikKelinci "1" -- "0..*" Booking : submits via Owner Portal
+Kelinci "1" -- "0..*" Booking : selected patient
+Kelinci "1" -- "0..*" RekamMedis : patient medical history
+Layanan "1" -- "0..*" JadwalLayanan
+JadwalLayanan "1" -- "0..*" Booking : requested slot
+AdminResepsionis "0..1" -- "0..*" Booking : decides
+Booking "1" -- "0..1" Visit : may result in
+Kelinci "1" -- "0..*" Visit : patient visits
+Visit "1" *-- "0..1" CheckIn
+Visit "1" -- "0..1" RekamMedis : visit clinical record
+Visit "1" -- "0..*" PelaksanaanLayanan : service executions
+Layanan "1" -- "0..*" PelaksanaanLayanan : catalog service
+Visit "1" -- "0..*" CatatanVaksinasi
+Visit "1" -- "0..*" CatatanGrooming
+Booking "1" -- "0..1" Invoice
+Invoice "1" *-- "1..*" InvoiceItem
+PelaksanaanLayanan ..> InvoiceItem : may generate billable service line
+Invoice "1" -- "0..*" Payment : payment attempts
+Payment "0..1" -- "0..*" PaymentCallbackEvent : matched provider events
+Invoice "1" -- "0..1" Receipt
+Payment "1" -- "0..1" Receipt : verified successful attempt
+
+Booking --> StatusBooking
+Visit --> StatusVisit
+PelaksanaanLayanan --> StatusPelaksanaanLayanan
+Invoice --> StatusInvoice
+Payment --> StatusPayment
+
+note right of Booking
+  Owner submits a request through Owner Portal.
+  MENUNGGU_KONFIRMASI is not a confirmed booking.
+  Admin decision metadata is recorded on approval/rejection.
+  Rejection reason is required for DITOLAK.
+end note
+
+note right of Visit
+  Visit lifecycle is separate from Booking lifecycle
+  and Service Execution lifecycle.
+  Visit tracks attendance / encounter progress only.
+  The exact Visit state names remain proposed pending validation.
+end note
+
+note right of PelaksanaanLayanan
+  Each recorded service execution has its own status
+  and timestamps, independent from Visit status.
+  The proposed state set is pending stakeholder validation.
+end note
+
+note right of InvoiceItem
+  Invoice items may be derived from recorded service executions
+  and other recorded items. Exact source mapping/cardinality
+  remains subject to detailed billing design.
+end note
+
+note right of Payment
+  One Payment row represents one payment attempt.
+  An Invoice may have multiple attempts.
+  Only a verified successful attempt can settle
+  an unpaid Invoice and issue one Receipt.
+end note
+
+note bottom of PaymentCallbackEvent
+  Unmatched callback events may be recorded
+  with paymentId unset for exception monitoring.
+end note
+@enduml

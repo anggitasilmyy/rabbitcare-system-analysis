@@ -1,0 +1,57 @@
+@startuml
+skinparam shadowing false
+title Deployment Diagram - RabbitCare with Payment Gateway v1.2
+
+node "Owner Device" as OwnerDevice {
+  artifact "Owner Web / Mobile Portal" as OwnerApp
+}
+node "Clinic Device" as ClinicDevice {
+  artifact "Clinic Admin Portal" as ClinicApp
+}
+node "Manager Device" as ManagerDevice {
+  artifact "Manager Dashboard" as ManagerApp
+}
+
+cloud "Internet / HTTPS" as Internet
+
+node "RabbitCare Application Environment" as AppServer {
+  artifact "Web Application" as WebApp
+  artifact "REST API / API Gateway" as API
+  artifact "Booking and Schedule Services" as BookingServices
+  artifact "Billing and Payment Services" as PaymentServices
+  artifact "Payment Gateway Adapter / Webhook Endpoint" as GatewayAdapter
+  artifact "Receipt Service" as ReceiptService
+  artifact "Background Scheduler" as Scheduler
+}
+
+node "Database Environment" as DBServer {
+  database "RabbitCare Relational Database" as DB
+  artifact "Backup Database" as Backup
+}
+
+cloud "Payment Gateway Provider" as PaymentProvider {
+  artifact "Hosted Checkout / Payment API" as CheckoutAPI
+  artifact "Provider Callback / Webhook" as Callback
+}
+cloud "Notification Provider" as NotificationProvider {
+  artifact "Email / WhatsApp / Push API" as NotificationAPI
+}
+
+OwnerApp --> Internet : HTTPS
+ClinicApp --> Internet : HTTPS
+ManagerApp --> Internet : HTTPS
+Internet --> WebApp : HTTPS
+WebApp --> API : internal call
+API --> BookingServices
+API --> PaymentServices
+PaymentServices --> GatewayAdapter
+GatewayAdapter --> PaymentProvider : outbound HTTPS
+PaymentProvider --> GatewayAdapter : signed callback / webhook HTTPS
+API --> DB : secure DB connection
+BookingServices --> DB
+PaymentServices --> DB
+ReceiptService --> DB
+Scheduler --> DB
+Scheduler --> NotificationAPI : HTTPS
+DB --> Backup : scheduled backup
+@enduml

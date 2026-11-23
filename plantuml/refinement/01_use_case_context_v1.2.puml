@@ -1,0 +1,96 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecase {
+  BackgroundColor White
+  BorderColor #475569
+}
+title Use Case Context - RabbitCare v1.2
+
+actor "Pemilik Kelinci" as Owner
+actor "Admin / Resepsionis" as Admin
+actor "Dokter Hewan" as Doctor
+actor "Groomer / Pet Care Staff" as Groomer
+actor "Manajer Klinik" as Manager
+actor "Payment Gateway Provider" as Gateway
+actor "Layanan Notifikasi" as Notification
+
+rectangle "Sistem Informasi RabbitCare" {
+  usecase "Kelola Akun dan\nProfil Kelinci" as UC_Profile
+  usecase "Ajukan Booking\nLayanan" as UC_SubmitBooking
+  usecase "Lihat Status dan\nKeputusan Booking" as UC_BookingStatus
+  usecase "Review Pengajuan\nBooking" as UC_ReviewBooking
+  usecase "Setujui Booking" as UC_ApproveBooking
+  usecase "Tolak Booking" as UC_RejectBooking
+  usecase "Kelola Kedatangan\ndan Antrean" as UC_CheckIn
+  usecase "Kelola Pemeriksaan\ndan Rekam Medis" as UC_Medical
+  usecase "Kelola Vaksinasi" as UC_Vaccine
+  usecase "Kelola Grooming\ndan Rabbit Care" as UC_Grooming
+  usecase "Lihat Invoice dan\nMulai Pembayaran" as UC_PayInvoice
+  usecase "Verifikasi Callback\nPembayaran" as UC_VerifyPayment
+  usecase "Lihat Status Transaksi\ndan Receipt" as UC_PaymentStatus
+  usecase "Kelola Jadwal\nPetugas" as UC_Schedule
+  usecase "Kelola Reminder\nPerawatan" as UC_Reminder
+  usecase "Lihat Dashboard\ndan Laporan" as UC_Report
+  usecase "Validasi Ulang\nKapasitas Slot" as UC_RevalidateSlot
+  usecase "Catat Alasan\nPenolakan" as UC_RejectionReason
+}
+
+Owner -- UC_Profile
+Owner -- UC_SubmitBooking
+Owner -- UC_BookingStatus
+Owner -- UC_PayInvoice
+Owner -- UC_PaymentStatus
+Owner -- UC_Reminder
+Owner -- UC_Medical : melihat riwayat
+Owner -- UC_Vaccine : melihat riwayat
+Owner -- UC_Grooming : melihat riwayat
+
+Admin -- UC_Profile
+Admin -- UC_ReviewBooking
+Admin -- UC_ApproveBooking
+Admin -- UC_RejectBooking
+Admin -- UC_CheckIn
+Admin -- UC_Schedule
+Admin -- UC_PaymentStatus : monitoring / exception
+
+Doctor -- UC_CheckIn : melihat antrean
+Doctor -- UC_Medical
+Doctor -- UC_Vaccine
+Doctor -- UC_Schedule : melihat jadwal
+
+Groomer -- UC_CheckIn : melihat antrean
+Groomer -- UC_Grooming
+Groomer -- UC_Schedule : melihat jadwal
+
+Manager -- UC_Report
+Manager -- UC_PaymentStatus : read / monitoring
+Gateway -- UC_VerifyPayment : server-to-server callback
+Notification -- UC_Reminder
+Notification -- UC_BookingStatus
+Notification -- UC_PaymentStatus
+
+UC_SubmitBooking .> UC_Profile : <<include>>\n(pilih kelinci)
+UC_ApproveBooking .> UC_RevalidateSlot : <<include>>
+UC_RejectBooking .> UC_RejectionReason : <<include>>
+UC_ApproveBooking .> UC_ReviewBooking : <<extend>>
+UC_RejectBooking .> UC_ReviewBooking : <<extend>>
+
+note bottom of UC_SubmitBooking
+  Owner submits a request through Owner Portal.
+  Submission does not confirm the booking.
+  Admin approval/rejection is required.
+end note
+
+note bottom of UC_VerifyPayment
+  Provider callback is received and verified by the RabbitCare backend.
+  It is asynchronous and is not an include-step of the Owner payment action.
+end note
+
+note bottom of UC_ReviewBooking
+  A separate Admin-created booking workflow
+  remains subject to stakeholder validation.
+end note
+@enduml

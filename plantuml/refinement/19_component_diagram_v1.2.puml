@@ -1,0 +1,68 @@
+@startuml
+skinparam shadowing false
+skinparam componentStyle rectangle
+title Component Diagram - RabbitCare Owner Booking and Gateway Payment v1.2
+
+actor "Pemilik Kelinci" as Owner
+actor "Admin Klinik" as Admin
+actor "Dokter / Groomer" as CareStaff
+actor "Manajer Klinik" as Manager
+
+component "Owner Portal\n(Profile / Booking Request / Invoice)" as OwnerPortal
+component "Clinic Portal\n(Review Queue / Operations)" as ClinicPortal
+component "Manager Dashboard" as ManagerPortal
+component "API Gateway" as API
+component "Authentication & Authorization" as Auth
+component "Pet Profile Service" as Pet
+component "Schedule Service\n(Availability / Capacity)" as Schedule
+component "Booking Service\n(Owner Request / Admin Decision)" as Booking
+component "Visit Service\n(Attendance / Visit Status)" as Visit
+component "Service Execution Service\n(Service Status / Timestamps)" as ServiceExec
+component "Clinical Record Services" as Clinical
+component "Billing Service" as Billing
+component "Payment Service\n(Payment Attempts / Status)" as Payment
+component "Payment Gateway Adapter\n(Checkout / Callback Verification)" as Adapter
+component "Receipt Service" as Receipt
+component "Notification Service" as Notification
+database "RabbitCare Relational Database" as DB
+cloud "Payment Gateway Provider" as Gateway
+cloud "Email / WhatsApp / Push Provider" as NotifProvider
+
+Owner --> OwnerPortal
+Admin --> ClinicPortal
+CareStaff --> ClinicPortal
+Manager --> ManagerPortal
+
+OwnerPortal --> API
+ClinicPortal --> API
+ManagerPortal --> API
+API --> Auth
+API --> Pet
+API --> Schedule
+API --> Booking
+API --> Visit
+API --> ServiceExec
+API --> Clinical
+API --> Billing
+API --> Payment
+
+Booking --> Pet : validate pet ownership
+Booking --> Schedule : check and revalidate capacity
+Booking --> DB
+Schedule --> DB
+Pet --> DB
+Visit --> DB
+ServiceExec --> DB
+Clinical --> DB
+Billing --> DB
+Payment --> DB
+Booking --> Notification : submitted / approved / rejected
+Payment --> Adapter
+Adapter --> Gateway : create checkout / transaction inquiry (outbound HTTPS)
+Gateway --> Adapter : signed callback / webhook (inbound HTTPS)
+Payment --> Receipt : verified PAID only
+Receipt --> DB
+Notification --> NotifProvider
+Billing --> ServiceExec : retrieve recorded services / items for invoice
+Billing --> Payment : invoice payment request
+@enduml

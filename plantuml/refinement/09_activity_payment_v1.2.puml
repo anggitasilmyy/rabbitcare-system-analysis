@@ -1,0 +1,124 @@
+@startuml
+skinparam shadowing false
+title Activity Diagram - Invoice Payment via Gateway v1.2
+
+|Pemilik Kelinci|
+start
+:Membuka invoice miliknya;
+:Memilih Bayar melalui Gateway;
+:Mengirim permintaan pembayaran dengan Idempotency-Key;
+
+|Sistem|
+:Validasi kepemilikan invoice dan status;
+:Ambil amount dan currency dari data invoice;
+if (Invoice valid dan belum lunas?) then (Ya)
+  :Periksa Idempotency-Key;
+  if (Key sudah pernah digunakan?) then (Ya)
+    :Kembalikan payment attempt yang sudah terbentuk;
+    stop
+  else (Tidak)
+    :Buat payment attempt PENDING;
+    :Simpan internal reference dan Idempotency-Key;
+    :Commit payment attempt;
+
+    |Payment Gateway Adapter|
+    :Meminta provider membuat transaksi / checkout;
+    |Payment Gateway|
+    if (Respons pembuatan transaksi diterima?) then (Ya)
+      if (Checkout berhasil dibuat?) then (Ya)
+        :Mengembalikan provider reference dan checkout URL;
+        |Payment Gateway Adapter|
+        :Menyimpan provider transaction reference;
+        |Sistem|
+        :Mengirim instruksi checkout kepada Owner;
+        |Pemilik Kelinci|
+        :Menyelesaikan pembayaran pada provider;
+      else (Tidak)
+        |Payment Gateway Adapter|
+        :Mencatat respons gagal dari provider;
+        |Sistem|
+        :Mencatat kegagalan / exception pembuatan checkout;
+        :Tidak menetapkan Payment menjadi PAID;
+      endif
+    else (Timeout / hasil tidak diketahui)
+      |Payment Gateway Adapter|
+      :Mempertahankan payment attempt PENDING;
+      :Menandai hasil inisiasi sebagai belum pasti;
+      if (Provider mendukung status inquiry?) then (Ya)
+        :Meminta status transaksi ke provider;
+        |Payment Gateway|
+        :Mengembalikan hasil inquiry jika tersedia;
+        |Payment Gateway Adapter|
+        :Memverifikasi hasil inquiry dan menyimpan provider reference/status;
+      else (Tidak)
+        :Meneruskan transaksi ke exception handling;
+      endif
+      |Sistem|
+      :Tidak membuat payment attempt baru sebelum
+      status transaksi sebelumnya dapat dipastikan;
+      :Menampilkan status PENDING / perlu tindak lanjut;
+    endif
+  endif
+else (Tidak)
+  :Menolak request pembayaran;
+  :Invoice tetap tidak berubah;
+  stop
+endif
+
+if (Callback / hasil status terverifikasi diterima?) then (Ya)
+  |Payment Gateway Adapter|
+  :Menerima callback atau hasil status inquiry;
+  |Sistem|
+  :Verifikasi autentisitas dan konsistensi hasil provider;
+  :Cocokkan reference, invoice, amount, currency, event, dan status;
+  if (Callback sudah pernah diproses?) then (Ya)
+    :Akui callback duplikat tanpa efek ganda;
+  else (Tidak)
+    if (Callback valid?) then (Ya)
+      if (Transaksi berhasil?) then (Ya)
+        :Lock Payment dan Invoice;
+        if (Invoice belum lunas?) then (Ya)
+          :Update Payment = PAID;
+          :Update Invoice = LUNAS;
+          :Simpan callback event dan audit;
+          :Commit transaksi;
+          :Terbitkan receipt secara idempotent;
+          :Kirim notifikasi pembayaran berhasil;
+        else (Tidak)
+          :Catat payment exception;
+          :Tidak menerbitkan receipt kedua;
+          :Masukkan transaksi ke rekonsiliasi;
+        endif
+      else (Pending / Failed / Cancelled)
+        :Update status Payment sesuai hasil valid;
+        :Invoice tetap BELUM_DIBAYAR;
+        :Catat callback event dan audit;
+        :Commit transaksi;
+        :Tidak menerbitkan receipt lunas;
+      endif
+    else (Tidak)
+      :Catat callback sebagai invalid / exception;
+      :Tidak mengubah status Payment atau Invoice;
+      :Tidak menerbitkan receipt;
+    endif
+  endif
+else (Belum)
+  |Sistem|
+  :Pertahankan status yang sudah tercatat;
+  :Tampilkan PENDING jika hasil provider belum diketahui;
+endif
+
+|Pemilik Kelinci|
+:Melihat status payment dan receipt jika tersedia;
+stop
+
+note bottom
+  Browser redirect is not proof of payment.
+  Only a verified provider result can update Payment and Invoice.
+  A timeout/unknown checkout result keeps the attempt PENDING and requires
+  status inquiry or exception handling before another attempt is considered.
+  The policy for concurrent active attempts with a different idempotency key
+  remains an open decision until stakeholder validation.
+  Booking lifecycle is not changed by payment processing.
+end note
+@enduml

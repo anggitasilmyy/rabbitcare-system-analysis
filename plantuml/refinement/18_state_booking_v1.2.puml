@@ -1,0 +1,30 @@
+@startuml
+skinparam shadowing false
+title State Machine Diagram - Booking Lifecycle v1.2
+
+[*] --> MenungguKonfirmasi : owner submits request via Owner Portal
+
+MenungguKonfirmasi --> Terkonfirmasi : admin approves\n[request still pending and slot capacity revalidated]
+MenungguKonfirmasi --> Ditolak : admin rejects\n[rejection reason recorded]
+MenungguKonfirmasi --> Dibatalkan : cancellation allowed by policy
+
+Terkonfirmasi --> DijadwalkanUlang : reschedule request accepted for processing
+DijadwalkanUlang --> Terkonfirmasi : new slot validated and reschedule confirmed
+Terkonfirmasi --> Dibatalkan : cancellation allowed by policy
+
+Ditolak --> [*]
+Dibatalkan --> [*]
+
+note right of MenungguKonfirmasi
+  Owner submission creates a request,
+  not a confirmed appointment.
+  Only an authorized admin can approve/reject.
+  Slot capacity is revalidated at approval.
+end note
+
+note bottom
+  Check-in, queue, service completion, and no-show
+  belong to the separate Visit lifecycle.
+  Invoice and Payment lifecycles are also separate.
+end note
+@enduml
