@@ -16,6 +16,10 @@ This folder contains the v1.2 refinement sources. The original v1.0 diagrams and
 10. Added booking creator identity, role snapshot, and creation-channel metadata to the booking activity, sequence, and class models.
 11. Added explicit handling for verified-but-unsupported callback events and unmatched payment references without changing Payment/Invoice status or issuing a receipt.
 12. Kept provider callback verification in the backend/system context rather than presenting it as a Clinic Portal action.
+13. Removed the Payment Gateway actor and callback-verification use case from the Clinic Operations Portal detail; Admin/Manager monitoring and exception review remain.
+14. Added booking creator user identity, role snapshot, and creation-channel metadata to the class model for booking-source traceability.
+15. Aligned the Service Execution state diagram with the `DIBATALKAN` domain value for pre-start cancellation; cancellation after execution starts remains an open decision.
+16. Revised the fishbone analysis to reflect that the baseline already includes Owner-initiated booking; the documented gap is the absence of an explicit pending-request/Admin-review workflow and related traceability.
 
 ## Diagram index
 
@@ -35,10 +39,12 @@ This folder contains the v1.2 refinement sources. The original v1.0 diagrams and
 | `20_deployment_diagram_v1.2.puml` | Application deployment and external payment gateway callback connection. |
 | `21_state_payment_v1.2.puml` | Payment attempt lifecycle and verified status transitions. |
 | `22_state_visit_v1.2.puml` | Visit attendance/encounter lifecycle only. |
-| `23_state_service_execution_v1.2.puml` | Independent service execution lifecycle. |
+| `23_state_service_execution_v1.2.puml` | Independent service execution lifecycle, including proposed pre-start cancellation. |
+| `24_process_comparison_baseline_to_be_v1.2.puml` | Side-by-side comparison of the repository baseline booking model and the proposed v1.2 To-Be workflow. |
 
 ## Modeling rules and open decisions
 
+- The baseline model already includes Owner-initiated booking and Owner confirmation. The v1.2 refinement changes the decision flow by creating a pending request for Admin review; it does not introduce self-service booking for the first time.
 - Owner submission creates a booking request with status `MENUNGGU_KONFIRMASI`; it is not a confirmed appointment.
 - Only an authorized Admin can approve or reject an owner-submitted request; approval requires capacity revalidation.
 - Pending slot hold/expiry and the Admin-created booking workflow remain subject to stakeholder validation.
@@ -49,6 +55,8 @@ This folder contains the v1.2 refinement sources. The original v1.0 diagrams and
 - Payment becomes `PAID` only after a verified provider result. Invoice becomes `LUNAS` only after that verified success.
 - Payment and Invoice do not change Booking, Visit, or Service Execution status.
 - Visit and individual Service Execution statuses are separate. The exact state names/transitions shown in v1.2 are proposed modeling values pending stakeholder validation.
+- `DIBATALKAN` is represented as a proposed Service Execution terminal state for cancellation before execution starts. Cancellation after execution starts remains undefined pending stakeholder validation.
+- Fishbone causes are hypotheses from repository analysis, not verified field findings; validate them with clinic stakeholders before presenting them as observed facts.
 - Pet medical history remains traceable directly through Pet ID, as specified by the baseline.
 - Invoice items can retain source references to recorded service executions/items; exact mapping/cardinality remains a detailed billing-design decision.
 - Provider-specific details remain open until a gateway provider is selected.

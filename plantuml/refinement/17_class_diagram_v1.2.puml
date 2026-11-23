@@ -48,6 +48,9 @@ class Booking {
   - idBooking: UUID
   - nomorBooking: String
   - dibuatPada: DateTime
+  - createdByUserId: UUID
+  - createdByRoleSnapshot: String
+  - creationChannel: String
   - status: StatusBooking
   - decidedByUserId: UUID?
   - decisionAt: DateTime?
@@ -189,7 +192,8 @@ PetugasKlinik <|-- Groomer
 PetugasKlinik <|-- ManajerKlinik
 
 PemilikKelinci "1" -- "0..*" Kelinci : owns
-PemilikKelinci "1" -- "0..*" Booking : submits via Owner Portal
+PemilikKelinci "1" -- "0..*" Booking : owner / requester
+User "1" -- "0..*" Booking : created by
 Kelinci "1" -- "0..*" Booking : selected patient
 Kelinci "1" -- "0..*" RekamMedis : patient medical history
 Layanan "1" -- "0..*" JadwalLayanan
@@ -222,6 +226,10 @@ note right of Booking
   MENUNGGU_KONFIRMASI is not a confirmed booking.
   Admin decision metadata is recorded on approval/rejection.
   Rejection reason is required for DITOLAK.
+  createdByUserId references User.idUser; role and channel are
+  stored as creation-time snapshots for source traceability.
+  The currently modeled submission flow is Owner via Owner Portal.
+  A separate Admin-created booking workflow remains unvalidated.
 end note
 
 note right of Visit

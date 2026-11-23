@@ -4,9 +4,11 @@ title State Machine Diagram - Service Execution Lifecycle v1.2
 
 [*] --> BelumDimulai : service execution is recorded for a Visit
 BelumDimulai --> SedangDilaksanakan : authorized staff starts the service
+BelumDimulai --> Dibatalkan : authorized cancellation before execution
 SedangDilaksanakan --> Selesai : service result is recorded and completed
 
 Selesai --> [*]
+Dibatalkan --> [*]
 
 note right of BelumDimulai
   Each PelaksanaanLayanan represents one recorded service
@@ -14,10 +16,17 @@ note right of BelumDimulai
   The execution status is independent from Visit status.
 end note
 
+note right of Dibatalkan
+  DIBATALKAN is a proposed terminal state for a service
+  cancelled before execution starts, subject to clinic policy.
+end note
+
 note bottom
   State names are proposed modeling values.
   Confirm allowed transitions and responsible roles with stakeholders.
+  Cancellation after execution has started is not defined in this model
+  and requires a separate stakeholder decision.
   A service execution update must not overwrite Visit, Booking,
-  Invoice, or Payment status. Cancellation/hold states are not defined here.
+  Invoice, or Payment status.
 end note
 @enduml

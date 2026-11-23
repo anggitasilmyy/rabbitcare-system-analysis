@@ -8,7 +8,6 @@ actor "Admin / Resepsionis" as Admin
 actor "Dokter Hewan" as Doctor
 actor "Groomer / Pet Care Staff" as Groomer
 actor "Manajer Klinik" as Manager
-actor "Payment Gateway Provider" as Gateway
 
 rectangle "Clinic Operations Portal - RabbitCare" {
   usecase "Login Petugas" as C1
@@ -33,7 +32,6 @@ rectangle "Clinic Operations Portal - RabbitCare" {
   usecase "Monitor Status Transaksi Gateway" as C20
   usecase "Tinjau Payment Exception" as C21
   usecase "Lihat Dashboard dan Laporan" as C22
-  usecase "Verifikasi Callback Gateway" as C23
 }
 
 Admin -- C1
@@ -65,7 +63,6 @@ Groomer -- C18
 Manager -- C1
 Manager -- C20
 Manager -- C22
-Gateway -- C23
 
 C6 .> C7 : <<include>>
 C8 .> C10 : <<include>>
@@ -85,5 +82,13 @@ end note
 note bottom of C8
   A booking becomes TERKONFIRMASI only if
   the request is still pending and capacity is available.
+end note
+
+note bottom
+  Payment Gateway callbacks are received and verified by the
+  RabbitCare backend through the Payment Gateway Adapter.
+  They are not Clinic Operations Portal use cases.
+  Admin/Manager may monitor transaction outcomes and review
+  exceptions, but cannot manually mark an unverified payment PAID.
 end note
 @enduml

@@ -21,18 +21,25 @@ rectangle "PROCESS" as Process
 rectangle "Owner request and admin approval workflow may be inconsistent\nCapacity must be revalidated before approval\nPending slot hold and expiry policy is unresolved\nVisit, service execution, invoice, and payment statuses may be mixed" as ProcessCause
 
 rectangle "TECHNOLOGY" as Technology
-rectangle "No integrated self-service booking request flow in baseline\nNo structured admin review queue\nNo consistent slot-capacity validation\nNo gateway callback verification" as TechnologyCause
+rectangle "Baseline includes Owner-initiated booking, but does not model a pending-request review queue\nNo explicit capacity revalidation at an Admin approval step\nNo documented server-side gateway callback verification\nBooking and payment exception handling are not fully specified" as TechnologyCause
 
 rectangle "DATA" as Data
-rectangle "Owner and rabbit records may be duplicated\nMedical history may be fragmented\nBooking request and admin decision may not be traceable\nBooking and invoice references may not be linked" as DataCause
+rectangle "Owner and rabbit records may require duplicate-record controls\nMedical history may be fragmented across service activities\nBooking request and Admin decision metadata are not explicitly modeled in baseline\nBooking, Visit, Service Execution, Invoice, and Payment references may be difficult to trace" as DataCause
 
 rectangle "MANAGEMENT & MEASUREMENT" as Management
-rectangle "No consolidated operational dashboard\nBooking decision time and no-show indicators may be unclear\nPayment reconciliation is not consistently measured\nService performance is difficult to evaluate" as ManagementCause
+rectangle "Operational indicators are not explicitly consolidated across lifecycle stages\nBooking decision time and no-show indicators may be unclear\nPayment reconciliation measures are not specified in the baseline model\nService-level performance indicators may need clearer definitions" as ManagementCause
 
 rectangle "ENVIRONMENT & EXTERNAL SERVICES" as Environment
 rectangle "Internet or hosting may be unavailable\nGateway or notification provider may fail\nProvider callbacks may be delayed or duplicated\nStaff schedules may change after request submission" as EnvironmentCause
 
-rectangle "CORE PROBLEM\nRabbit Clinic and Care services are not yet integrated;\nbooking requests, admin decisions, payment outcomes,\nand follow-up information may be missed or difficult to trace." as Problem
+rectangle "CORE PROBLEM\nThe baseline model does not define one consistently traceable\nworkflow across Owner booking, clinic decisions, service delivery,\nbilling, payment outcomes, and follow-up information." as Problem
+
+note bottom
+  This fishbone is a hypothesis-based analysis derived from the
+  available repository models and documents. Potential causes
+  require stakeholder interviews or field validation before being
+  presented as confirmed operational findings.
+end note
 
 People --> PeopleCause
 PeopleCause --> Problem
