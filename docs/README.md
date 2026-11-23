@@ -35,9 +35,10 @@ Refinement documents record proposed changes separately from the original v1.0 b
 
 - [BRD Refinement v1.2](refinement/BRD_Refinement_v1.2.md) · [PDF](refinement/BRD_Refinement_v1.2.pdf) · [Change Log](refinement/BRD_Change_Log_v1.2.md)
 - [MRD Refinement v1.2](refinement/MRD_Refinement_v1.2.md) · [PDF](refinement/MRD_Refinement_v1.2.pdf) · [Change Log](refinement/MRD_Change_Log_v1.2.md)
+- [PRD Refinement v1.2](refinement/PRD_Refinement_v1.2.md) · [PDF](refinement/PRD_Refinement_v1.2.pdf) · [Change Log](refinement/PRD_Change_Log_v1.2.md)
 - [SRD Refinement v1.2 — Revised](refinement/SRD_Refinement_v1.2_REVISED.md)
 
-The Product Requirements and Gap Analysis addenda remain at v1.1 in this repository snapshot. Their alignment with the v1.2 BRD, MRD, and SRD is planned for a subsequent review stage. This index links only to files included in the repository.
+The Product Requirements addendum now includes v1.2 for lifecycle separation and booking-source traceability. The Gap Analysis addendum remains at v1.1; its next refinement is planned separately. This index links only to files included in the repository.
 
 ## UML / PlantUML
 
