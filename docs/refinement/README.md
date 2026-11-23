@@ -51,7 +51,12 @@ All addenda are proposed analysis artifacts and remain **Draft — pending stake
 ### System Requirements
 - [SRD Refinement v1.2 — Revised](SRD_Refinement_v1.2_REVISED.md)
 
-Product Requirements refinement v1.2 aligns Visit/Service Execution and booking-source requirements with the v1.2 business, market, and system documents. Gap Analysis remains at v1.1 until its own next refinement; no uncreated Gap Analysis v1.2 document is linked here.
+### Gap Analysis
+- [Gap Analysis Refinement v1.2](Gap_Analysis_Refinement_v1.2.md)
+- [Gap Analysis Refinement v1.2 PDF](Gap_Analysis_Refinement_v1.2.pdf)
+- [Gap Analysis Change Log v1.2](Gap_Analysis_Change_Log_v1.2.md)
+
+PRD and Gap Analysis refinement v1.2 align the lifecycle model across Booking, Visit, Service Execution, Invoice, and Payment. They also clarify booking creator identity, role, and source-channel traceability. These addenda remain draft proposals pending stakeholder validation.
 
 ## UML / PlantUML
 
@@ -67,5 +72,5 @@ The original diagrams in the parent `plantuml/` folder are preserved as the v1.0
 - v1.0 PDFs and root-level PlantUML files are the original baseline.
 - v1.1 addenda document the booking approval and gateway-payment direction.
 - v1.2 BRD/MRD addenda clarify capacity revalidation, pending-slot policy boundaries, Visit and Service Execution tracking, lifecycle separation, and booking-source traceability. The SRD v1.2 addendum provides the corresponding system-level detail.
-- PRD Refinement v1.2 adds PR-66 to PR-68 for Visit, Service Execution, and booking-source traceability; Gap Analysis refinement remains a later stage.
+- PRD Refinement v1.2 adds PR-66 to PR-68 for Visit, Service Execution, and booking-source traceability. Gap Analysis Refinement v1.2 now aligns the business analysis with these lifecycle and booking-provenance requirements.
 - No refinement should be represented as stakeholder-approved until the relevant clinic stakeholders validate it.

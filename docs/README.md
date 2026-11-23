@@ -37,8 +37,9 @@ Refinement documents record proposed changes separately from the original v1.0 b
 - [MRD Refinement v1.2](refinement/MRD_Refinement_v1.2.md) · [PDF](refinement/MRD_Refinement_v1.2.pdf) · [Change Log](refinement/MRD_Change_Log_v1.2.md)
 - [PRD Refinement v1.2](refinement/PRD_Refinement_v1.2.md) · [PDF](refinement/PRD_Refinement_v1.2.pdf) · [Change Log](refinement/PRD_Change_Log_v1.2.md)
 - [SRD Refinement v1.2 — Revised](refinement/SRD_Refinement_v1.2_REVISED.md)
+- [Gap Analysis Refinement v1.2](refinement/Gap_Analysis_Refinement_v1.2.md) · [PDF](refinement/Gap_Analysis_Refinement_v1.2.pdf) · [Change Log](refinement/Gap_Analysis_Change_Log_v1.2.md)
 
-The Product Requirements addendum now includes v1.2 for lifecycle separation and booking-source traceability. The Gap Analysis addendum remains at v1.1; its next refinement is planned separately. This index links only to files included in the repository.
+The v1.2 addenda clarify lifecycle separation across Booking, Visit, Service Execution, Invoice, and Payment, and add traceability for booking creator identity, role, and source channel. The Gap Analysis v1.2 addendum aligns the business analysis with BR-58–BR-60, MR-24–MR-25, PR-66–PR-68, and SR-F-101–SR-F-103. This index links only to files included in the repository.
 
 ## UML / PlantUML
 
