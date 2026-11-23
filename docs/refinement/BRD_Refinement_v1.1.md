@@ -121,7 +121,7 @@ Booking yang dibuat admin atas nama pemilik memerlukan aturan tersendiri: apakah
 6. Provider memproses transaksi dan mengirimkan hasil transaksi kepada sistem.
 7. Sistem memverifikasi hasil transaksi sebelum memperbarui status.
 8. Jika transaksi berhasil dan valid, pembayaran dan invoice dicatat lunas serta bukti pembayaran diterbitkan.
-9. 9. Jika transaksi gagal, invoice tetap belum lunas. Kebijakan percobaan ulang dan masa berlaku pembayaran mengikuti ketentuan yang akan ditetapkan bersama stakeholder dan payment gateway provider.
+9. Jika transaksi gagal, invoice tetap belum lunas. Kebijakan percobaan ulang dan masa berlaku pembayaran mengikuti ketentuan yang akan ditetapkan bersama stakeholder dan payment gateway provider.
 
 Detail teknis checkout session, callback, signature, idempotency, dan rekonsiliasi dijabarkan pada SRD, bukan ditetapkan sebagai detail implementasi di BRD.
 

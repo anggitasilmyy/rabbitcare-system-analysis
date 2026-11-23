@@ -2,7 +2,7 @@
 
 **Tanggal refinement:** 23 November 2026  
 **Dokumen sumber:** RabbitCare Gap Analysis v1.0 dan Gap Analysis Refinement v1.1  
-**Dokumen penyelarasan:** BRD/MRD Refinement v1.2, PRD Refinement v1.2, SRD Refinement v1.2 — Revised, dan PlantUML Refinement v1.2  
+**Dokumen terkait:** BRD/MRD Refinement v1.1, PRD Refinement v1.2, SRD Refinement v1.2 — Revised, dan PlantUML Refinement v1.2  
 **Status:** Draft — pending stakeholder validation  
 **Jenis perubahan:** Addendum terarah; tidak menggantikan dokumen baseline v1.0 atau addendum v1.1
 
@@ -104,13 +104,16 @@ Hal-hal berikut belum boleh dianggap sebagai kebijakan final:
 
 ## 7. Traceability to related refinement
 
-| Kebutuhan / artefak | ID terkait | Hubungan dengan Gap Analysis v1.2 |
+| Area analisis | Requirement terkait yang tersedia | Hubungan dengan Gap Analysis v1.2 |
 |---|---|---|
-| Business requirements | **BR-58, BR-59, BR-60** | Pemantauan Visit, Service Execution, dan traceability pembuat/sumber booking. |
-| Market requirements | **MR-24, MR-25** | Kebutuhan pasar untuk lifecycle kunjungan/layanan dan booking provenance. |
-| Product requirements | **PR-66, PR-67, PR-68** | Lifecycle Visit, lifecycle Service Execution, dan booking provenance. |
-| System requirements | **SR-F-101, SR-F-102, SR-F-103** | Status Visit dan Service Execution terpisah serta metadata pembuat booking dari konteks autentikasi. |
-| PlantUML v1.2 | Class Diagram, Visit State, Service Execution State, dan diagram booking. | Model pendukung untuk lifecycle separation dan booking provenance. |
+| **Visit tracking** | BR-12–BR-16, BR-43, BR-46; MR-07, MR-08, MR-18; PR-66; SR-F-101 | Kebutuhan check-in, antrean, pemantauan kunjungan, dan pemisahan lifecycle Visit. |
+| **Service Execution** | BR-17–BR-32; MR-09–MR-12, MR-17; PR-67; SR-F-102 | Kebutuhan pemeriksaan klinis, vaksinasi, grooming, dan pencatatan progres setiap layanan. |
+| **Medical history traceability** | BR-03, BR-17; MR-09, MR-17; SR-F-009 | Pet ID tetap menjadi penghubung utama riwayat medis; Visit menjadi konteks encounter tambahan. |
+| **Billing traceability** | BR-33–BR-37; MR-14; SR-F-058–SR-F-059 | Invoice tetap berasal dari layanan dan item yang dicatat; mapping Service Execution ke InvoiceItem masih memerlukan detailed billing design. |
+| **Booking provenance** | BR-08, BR-51; MR-04, MR-19; PR-13, PR-15; SR-F-103 | Requirement yang tersedia mencakup pembuatan booking oleh Owner/Admin, self-service booking, keputusan Admin, dan audit perubahan data. SR-F-103 menambahkan metadata aktor, snapshot peran, serta kanal/sumber pembuatan booking. |
+| **PlantUML v1.2** | Class Diagram, Visit State, Service Execution State, Booking Activity/Sequence, dan Fishbone. | Model pendukung untuk lifecycle separation, booking provenance, serta dampaknya pada proses. |
+
+**Catatan keterlacakan:** BR/MR/PR yang dicantumkan di atas merupakan requirement baseline atau addendum v1.1 yang sudah ada, bukan ID baru. PR-66 dan PR-67 ditambahkan pada PRD v1.2; SR-F-101 sampai SR-F-103 ditambahkan pada SRD v1.2. Booking creator metadata ditangani pada level system requirement melalui SR-F-103; tidak ada requirement produk terpisah untuk metadata tersebut atau addendum BRD/MRD v1.2 dalam snapshot repository ini.
 
 ## 8. Status dan preservasi versi
 
