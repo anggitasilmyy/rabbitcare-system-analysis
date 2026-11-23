@@ -33,17 +33,20 @@ All addenda are proposed analysis artifacts and remain **Draft — pending stake
 
 ## v1.2 Addenda
 
-### Product Requirements
-- [PRD Refinement v1.2](PRD_Refinement_v1.2.md)
-- [PRD Change Log v1.2](PRD_Change_Log_v1.2.md)
+### Business Requirements
+- [BRD Refinement v1.2](BRD_Refinement_v1.2.md)
+- [BRD Refinement v1.2 PDF](BRD_Refinement_v1.2.pdf)
+- [BRD Change Log v1.2](BRD_Change_Log_v1.2.md)
 
-### Gap Analysis
-- [Gap Analysis Refinement v1.2](Gap_Analysis_Refinement_v1.2.md)
-- [Gap Analysis Change Log v1.2](Gap_Analysis_Change_Log_v1.2.md)
+### Market Requirements
+- [MRD Refinement v1.2](MRD_Refinement_v1.2.md)
+- [MRD Refinement v1.2 PDF](MRD_Refinement_v1.2.pdf)
+- [MRD Change Log v1.2](MRD_Change_Log_v1.2.md)
 
 ### System Requirements
-- [SRD Refinement v1.2](SRD_Refinement_v1.2_REVISED.md)
-- [SRD Change Log v1.2](SRD_Change_Log_v1.2.md)
+- [SRD Refinement v1.2 — Revised](SRD_Refinement_v1.2_REVISED.md)
+
+The Product Requirements and Gap Analysis addenda remain at v1.1 in this repository snapshot. Their alignment with the v1.2 business, market, and system refinements is planned as a subsequent review stage; no uncreated v1.2 documents are linked here.
 
 ## UML / PlantUML
 
@@ -58,5 +61,6 @@ The original diagrams in the parent `plantuml/` folder are preserved as the v1.0
 
 - v1.0 PDFs and root-level PlantUML files are the original baseline.
 - v1.1 addenda document the booking approval and gateway-payment direction.
-- v1.2 addenda clarify separate Booking, Visit, Service Execution, Invoice, and Payment lifecycles, and align technical models and traceability.
+- v1.2 BRD/MRD addenda clarify capacity revalidation, pending-slot policy boundaries, Visit and Service Execution tracking, lifecycle separation, and booking-source traceability. The SRD v1.2 addendum provides the corresponding system-level detail.
+- PRD alignment for the new Visit/Service Execution and booking-source requirements remains pending.
 - No refinement should be represented as stakeholder-approved until the relevant clinic stakeholders validate it.

@@ -33,11 +33,11 @@ Refinement documents record proposed changes separately from the original v1.0 b
 
 ### v1.2 Addenda
 
-- [PRD Refinement v1.2](refinement/PRD_Refinement_v1.2.md) · [Change Log](refinement/PRD_Change_Log_v1.2.md)
-- [Gap Analysis Refinement v1.2](refinement/Gap_Analysis_Refinement_v1.2.md) · [Change Log](refinement/Gap_Analysis_Change_Log_v1.2.md)
-- [SRD Refinement v1.2](refinement/SRD_Refinement_v1.2_REVISED.md) · [Change Log](refinement/SRD_Change_Log_v1.2.md)
+- [BRD Refinement v1.2](refinement/BRD_Refinement_v1.2.md) · [PDF](refinement/BRD_Refinement_v1.2.pdf) · [Change Log](refinement/BRD_Change_Log_v1.2.md)
+- [MRD Refinement v1.2](refinement/MRD_Refinement_v1.2.md) · [PDF](refinement/MRD_Refinement_v1.2.pdf) · [Change Log](refinement/MRD_Change_Log_v1.2.md)
+- [SRD Refinement v1.2 — Revised](refinement/SRD_Refinement_v1.2_REVISED.md)
 
-The v1.2 Markdown files are the editable sources for the latest lifecycle clarification and technical refinement. The original PDFs and v1.1 addenda remain available for version history.
+The Product Requirements and Gap Analysis addenda remain at v1.1 in this repository snapshot. Their alignment with the v1.2 BRD, MRD, and SRD is planned for a subsequent review stage. This index links only to files included in the repository.
 
 ## UML / PlantUML
 
@@ -50,3 +50,5 @@ The `.puml` files are editable source diagrams. Rendered previews are not includ
 ## Document Baseline and Versioning
 
 The PDFs in `requirements/` and `analysis/` represent the original project documentation baseline (v1.0 / Draft where specified in the source documents). Subsequent refinements are recorded in separate, versioned addenda so that the original baseline remains traceable.
+
+All v1.1 and v1.2 addenda are proposed refinements, not stakeholder approvals or evidence of completed implementation.
