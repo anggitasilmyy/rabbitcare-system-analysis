@@ -1,213 +1,121 @@
 # RabbitCare — Business & System Analysis Case Study
 
-*Turning fragmented clinic workflows into a structured, traceable system
-proposal.*
+*From baseline workflow assumptions to a structured, traceable system proposal.*
 
-## Project at a glance
+## Project snapshot
 
-| Area            | Details                                                                                                                               |
-|-----------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| Product concept | Web-based rabbit clinic and care management system                                                                                    |
-| Domain          | Pet healthcare and clinic operations                                                                                                  |
-| My focus        | Business Analysis and System Analysis                                                                                                 |
-| Analysis scope  | Owner and rabbit profiles, booking, clinic visits, medical records, vaccination, grooming, billing, payment, reminders, and reporting |
-| Project status  | Proposed solution; documentation remains Draft / pending stakeholder validation                                                       |
+| Area | Details |
+|---|---|
+| Product concept | Web-based rabbit clinic and care management system |
+| Domain | Pet healthcare and clinic operations |
+| My contribution | Business Analysis and System Analysis |
+| Scope | Owner and rabbit profiles, booking, visits, medical records, vaccination, grooming, billing, payment, reminders, and reporting |
+| Status | Proposed solution; Draft / pending stakeholder validation |
+| Boundary | Analysis and system modeling; no deployed application is claimed |
 
 ## Overview
 
-RabbitCare explores how a rabbit clinic can coordinate the owner and
-patient journey through one integrated information system. The proposed
-product has two main areas: an **Owner Portal** for profile management,
-booking requests, service history, invoices, and reminders; and a
-**Clinic Portal** for administrative and clinical operations.
+RabbitCare explores how a rabbit clinic could coordinate the owner and patient journey through an integrated information system. The proposed product includes an **Owner Portal** for profiles, booking requests, service history, invoices, and reminders; a **Clinic Operations Portal** for administrative and clinical work; and a **Manager Dashboard** for operational monitoring and reporting.
 
-My contribution focuses on the analysis and documentation work. The UI
-prototype is a separate project artifact created by another contributor,
-and this case study does not claim UI/UX design ownership or application
-implementation.
+My contribution focused on analyzing business needs, refining workflows and requirements, and modeling system behavior. The UI prototype is a separate project artifact created by another contributor; I do not claim UI/UX design or application implementation ownership.
 
-## The business challenge
+## Business context
 
-The project’s As-Is analysis describes several operational conditions
-that need to be validated with clinic stakeholders:
+The project baseline describes potential gaps in how owner and rabbit information, booking requests, staff schedules, medical histories, check-in, billing, payment, reminders, and reporting are coordinated.
 
-- Owner and rabbit information may be spread across books, spreadsheets,
-  documents, and messaging channels.
-- Booking requests arrive through WhatsApp, phone calls, or walk-ins,
-  while staff schedules are maintained separately.
-- Medical, vaccination, and grooming histories are not consistently
-  connected.
-- Check-in, queue handling, billing, and payment require manual
-  coordination.
-- Follow-up reminders and management reports depend on staff actions or
-  manual data consolidation.
-- Role-based access and audit trails need clearer definition.
+These are **repository-based analysis assumptions**, not verified findings from field observation. They require clinic stakeholder validation before being presented as confirmed operational conditions.
 
-The central analysis challenge was not simply to list desired features.
-It was to translate these disconnected activities into clear business
-rules, product behavior, and system requirements.
+The analysis challenge was to translate broad needs into explicit processes, business rules, requirements, data relationships, and system controls.
 
 ## My contribution
 
-I worked on the analysis and documentation side of the project:
-
-1.  **Business and process analysis** — documented stakeholder roles,
-    business objectives, scope, As-Is assumptions, and the proposed
-    To-Be process.
-2.  **Gap and root-cause analysis** — compared current and target
-    conditions, organized gaps across operational areas, and used SWOT
-    and Fishbone Analysis to structure contributing factors and
-    recommendations.
-3.  **Requirements engineering** — prepared and refined BRD, MRD, PRD,
-    and SRD artifacts, including requirements, business rules,
-    priorities, acceptance criteria, and open decisions.
-4.  **System analysis** — translated business and product needs into
-    functional and non-functional requirements, API and data
-    considerations, authorization, transaction rules, integrations,
-    logging, security, and testing requirements.
-5.  **System modeling and traceability** — maintained versioned PlantUML
-    models and connected business, product, and system requirements
-    through refinement addenda and change logs.
+- **Business and process analysis:** documented business context, stakeholders, objectives, scope, baseline assumptions, and proposed To-Be workflows.
+- **Gap and root-cause analysis:** compared baseline and target behavior, organized gaps, and used SWOT and Fishbone Analysis to structure hypotheses and recommendations.
+- **Requirements engineering:** prepared and refined BRD, MRD, PRD, and SRD artifacts, including requirements, business rules, priorities, and acceptance criteria.
+- **System analysis and modeling:** translated requirements into functional and non-functional considerations, API/data rules, authorization, transaction handling, integrations, audit logging, and PlantUML models.
+- **Traceability:** maintained versioned artifacts, refinement addenda, change logs, and links between business, product, and system requirements.
 
 ## Key analysis decisions
 
-### 1. Booking is a request before it becomes a confirmed appointment
+### 1. Booking submission is a request, not a confirmed appointment
 
-An Owner-submitted booking is recorded as `MENUNGGU_KONFIRMASI`. An
-authorized Admin reviews and approves or rejects it. Before approval,
-the system revalidates slot capacity. The decision, actor, timestamp,
-and rejection reason are recorded for traceability.
+The baseline repository flow moves from Owner confirmation to `TERKONFIRMASI`. The refined proposal introduces an explicit pending-request stage: an Owner submits a request, the system records `MENUNGGU_KONFIRMASI`, and an authorized Admin approves or rejects it. Capacity is revalidated at the approval point.
 
-**Why it matters:** a submitted request is not treated as a confirmed
-appointment, and capacity is checked again at the decision point to
-reduce the risk of overbooking.
+![RabbitCare baseline and proposed booking process comparison](assets/01_booking_process_comparison.png)
+
+*Figure 1. Repository baseline model v1.0 compared with the proposed To-Be workflow v1.2. The baseline is not a field-validated clinic process.*
+
+![RabbitCare booking approval workflow](assets/02_booking_approval_workflow.png)
+
+*Figure 2. Owner request and Admin decision workflow, including capacity revalidation before approval.*
+
+**Analysis value:** a submitted request is distinguished from an approved appointment, and the decision actor, timestamp, and rejection reason are recorded.
 
 ### 2. Five operational lifecycles are modeled separately
 
-The refinement separates statuses that had previously been grouped too
-closely:
+| Lifecycle | Responsibility |
+|---|---|
+| **Booking** | Owner request, Admin decision, and schedule changes |
+| **Visit** | Patient attendance, check-in, queue, and encounter progress |
+| **Service Execution** | Progress of each service recorded during a Visit |
+| **Invoice** | Amount due and settlement state |
+| **Payment Attempt** | Outcome of an individual payment transaction |
 
-| Lifecycle             | What it represents                                          |
-|-----------------------|-------------------------------------------------------------|
-| **Booking**           | Service request, Admin decision, and schedule changes       |
-| **Visit**             | Patient attendance, check-in, queue, and encounter progress |
-| **Service Execution** | Progress of each service recorded during a Visit            |
-| **Invoice**           | Amount due and settlement state                             |
-| **Payment Attempt**   | Outcome of an individual payment transaction                |
+![RabbitCare five separate operational lifecycles](assets/03_five_lifecycle_relationships.png)
 
-**Why it matters:** the status of a clinic visit should not
-automatically change the status of an individual service, invoice, or
-payment attempt. This separation supports clearer operational tracking
-and reporting.
+*Figure 3. Proposed lifecycle and relationship model. Invoice items may reference recorded services and other billable items; detailed mapping remains a billing-design decision.*
+
+**Analysis value:** completion of a Visit does not automatically mean every service is completed, an invoice is paid, or a payment attempt is successful. Each lifecycle retains its own responsibility and status.
 
 ### 3. Payment success depends on a verified provider result
 
-The proposed MVP includes payment gateway integration. RabbitCare
-records each payment attempt and treats provider callbacks/webhooks as
-untrusted until verified by the backend. Duplicate events are handled
-idempotently; invalid, mismatched, unsupported, or unmatched events must
-not settle an invoice or trigger a receipt. A receipt is issued only
-after verified payment success.
+The proposed MVP includes payment gateway integration. Each payment attempt is recorded separately and protected by an `Idempotency-Key`. The backend verifies provider authentication and matches the provider reference, invoice, amount, currency, and event before changing payment or invoice status.
 
-**Why it matters:** payment status should not rely solely on a browser
-redirect or a manually supplied proof of payment.
+![RabbitCare payment gateway verification flow](assets/04_payment_verification_flow.png)
+
+*Figure 4. Payment initiation, provider interaction, callback verification, settlement, and reconciliation controls.*
+
+**Analysis value:** a browser redirect is not proof of payment. Only a verified provider result may set `Payment = PAID` and `Invoice = LUNAS`. Duplicate events must not repeat side effects; invalid or unmatched events must not settle an invoice or issue a receipt.
 
 ### 4. Patient history remains traceable to the rabbit
 
-Each rabbit retains a unique patient identifier. Medical history remains
-directly traceable through the Pet ID, while Visit and Service Execution
-records provide additional context about attendance and individual
-services.
-
-**Why it matters:** the clinic can distinguish a patient’s longitudinal
-medical history from the operational status of one visit or service.
+Each rabbit has a unique patient identifier. Medical history remains directly traceable through the rabbit's ID, while Visit and Service Execution records provide context about attendance and individual services.
 
 ## Analysis workflow
 
-| Step | Analysis activity                                        | Main output                                                                     |
-|------|----------------------------------------------------------|---------------------------------------------------------------------------------|
-| 01   | Identify business context, actors, objectives, and scope | Business context and stakeholder requirements                                   |
-| 02   | Compare As-Is assumptions with the target process        | Gap Analysis, SWOT, and Fishbone Analysis                                       |
-| 03   | Translate needs into product behavior and rules          | BRD, MRD, PRD, priorities, and acceptance criteria                              |
-| 04   | Define system behavior and constraints                   | SRD, API/data requirements, authorization, transaction, and test considerations |
-| 05   | Model and refine the solution                            | Use case, activity, sequence, class, state, component, and deployment diagrams  |
-| 06   | Maintain requirement links and version history           | Traceability matrices, refinement addenda, and change logs                      |
+| Step | Activity | Main outputs |
+|---|---|---|
+| 01 | Identify business context, actors, objectives, and scope | Business context and stakeholder requirements |
+| 02 | Compare baseline assumptions with target behavior | Process comparison, Gap Analysis, SWOT, and Fishbone Analysis |
+| 03 | Translate needs into product behavior and rules | BRD, MRD, PRD, priorities, and acceptance criteria |
+| 04 | Define system behavior and constraints | SRD, API/data, authorization, transaction, integration, and testing considerations |
+| 05 | Model and refine the solution | Use Case, Activity, Sequence, Class, State, Component, and Deployment diagrams |
+| 06 | Maintain requirement links and version history | Traceability, refinement addenda, and change logs |
 
-## Deliverables and evidence
+## Deliverables and repository evidence
 
-The repository contains the following analysis artifacts:
+The repository contains BRD, MRD, PRD, and SRD documents; business analysis artifacts; refinement addenda and change logs; and **49 PlantUML source files** across the original baseline and v1.1/v1.2 refinement set.
 
-- **Requirements documentation:** BRD, MRD, PRD, and SRD baseline
-  documents, with separately versioned refinement addenda.
-- **Business analysis:** As-Is/To-Be comparison, Gap Analysis, SWOT,
-  Fishbone Analysis, and improvement recommendations.
-- **System models:** 49 versioned PlantUML diagram sources across the
-  baseline and v1.1/v1.2 refinements.
-- **Traceability:** requirement mappings, acceptance criteria,
-  refinement notes, and change logs.
+Selected evidence:
 
-Selected source files:
-
-- [Business Requirements Document](../requirements/RabbitCare-BRD.pdf)
-- [Market Requirements Document](../requirements/RabbitCare-MRD.pdf)
-- [Product Requirements Document](../requirements/RabbitCare-PRD.pdf)
-- [System Requirements Document](../requirements/RabbitCare-SRD.pdf)
+- [BRD](../requirements/RabbitCare-BRD.pdf) · [MRD](../requirements/RabbitCare-MRD.pdf) · [PRD](../requirements/RabbitCare-PRD.pdf) · [SRD](../requirements/RabbitCare-SRD.pdf)
 - [Baseline Gap Analysis](../analysis/RabbitCare-Gap-Analysis.pdf)
-- [PRD Refinement v1.2](../refinement/PRD_Refinement_v1.2.md)
-- [Gap Analysis Refinement
-  v1.2](../refinement/Gap_Analysis_Refinement_v1.2.md)
-- [SRD Refinement v1.2](../refinement/SRD_Refinement_v1.2_REVISED.md)
-- [Booking activity diagram
-  v1.2](../../plantuml/refinement/05_activity_booking_service_v1.2.puml)
-- [Payment activity diagram
-  v1.2](../../plantuml/refinement/09_activity_payment_v1.2.puml)
-- [Class diagram
-  v1.2](../../plantuml/refinement/17_class_diagram_v1.2.puml)
-- [Visit state diagram
-  v1.2](../../plantuml/refinement/22_state_visit_v1.2.puml)
-- [Service Execution state diagram
-  v1.2](../../plantuml/refinement/23_state_service_execution_v1.2.puml)
+- [PRD Refinement v1.2](../refinement/PRD_Refinement_v1.2.md) · [Gap Analysis Refinement v1.2](../refinement/Gap_Analysis_Refinement_v1.2.md) · [SRD Refinement v1.2](../refinement/SRD_Refinement_v1.2_REVISED.md)
+- [Booking activity v1.2](../../plantuml/refinement/05_activity_booking_service_v1.2.puml) · [Booking sequence v1.2](../../plantuml/refinement/11_sequence_booking_v1.2.puml)
+- [Payment activity v1.2](../../plantuml/refinement/09_activity_payment_v1.2.puml) · [Payment sequence v1.2](../../plantuml/refinement/15_sequence_payment_v1.2.puml)
+- [Class diagram v1.2](../../plantuml/refinement/17_class_diagram_v1.2.puml) · [Visit state v1.2](../../plantuml/refinement/22_state_visit_v1.2.puml) · [Service Execution state v1.2](../../plantuml/refinement/23_state_service_execution_v1.2.puml)
+- [Baseline-to-To-Be process comparison source](../../plantuml/refinement/24_process_comparison_baseline_to_be_v1.2.puml)
 
-## Outcome
+## Outcome, scope, and open decisions
 
-The project produced a structured analysis package that connects
-documented business problems to proposed product behavior, system-level
-controls, and traceable models. The most important analytical result is
-a clearer separation of booking, visit, service execution, invoice, and
-payment responsibilities, supported by explicit booking-approval and
-payment-verification rules.
+The project produced a structured analysis package connecting business needs and baseline assumptions to proposed product behavior, system requirements, and traceable models. Its main outcomes are an explicit Owner booking request/Admin decision workflow, separate operational and financial lifecycles, and server-side payment verification requirements.
 
-This is a **documented system proposal**, not evidence of a deployed
-application or measured operational improvement.
-
-## Scope, assumptions, and open decisions
-
-- The As-Is conditions are documented project assumptions and have not
-  been independently verified with clinic stakeholders.
-- Baseline documents and refinement addenda remain Draft / pending
-  stakeholder validation.
-- The application has not been implemented as part of this analysis
-  repository.
-- The payment gateway provider and provider-specific configuration are
-  not yet selected.
-- Pending-slot hold and expiry rules, the Admin-created booking
-  workflow, and some Visit / Service Execution state transitions require
-  stakeholder decisions.
-- The UI prototype was created by another contributor; it may be shown
-  only as product context, with attribution.
+This is a **documented system proposal**, not evidence of a deployed application or measured operational improvement. Baseline conditions and Fishbone causes remain hypotheses. Documents are Draft / pending stakeholder validation. The payment provider, pending-slot hold/expiry policy, Admin-created booking workflow, some Visit and Service Execution transitions, and the policy for a different `Idempotency-Key` while another attempt is active remain open decisions. Cancellation after Service Execution has started is not defined in the current proposal.
 
 ## Skills demonstrated
 
-Business Process Analysis · Gap Analysis · SWOT and Fishbone Analysis ·
-Requirements Engineering · Functional and Non-Functional Requirements ·
-Acceptance Criteria · Requirements Traceability · UML / PlantUML System
-Modeling · Transaction and Integration Analysis · Version-controlled
-Documentation
+Business Process Analysis · Gap Analysis · SWOT and Fishbone Analysis · Requirements Engineering · Functional and Non-Functional Requirements · Acceptance Criteria · Requirements Traceability · UML / PlantUML System Modeling · Transaction and Integration Analysis · Version-controlled Documentation
 
-------------------------------------------------------------------------
+---
 
-**Portfolio presentation note:** Lead with the As-Is vs To-Be
-comparison, the Admin booking-approval flow, and the five-lifecycle
-model. Use the payment-verification flow as a deeper technical-analysis
-example. If the Figma Make prototype is shown, label it as a separate UI
-artifact created by another contributor.
+**Portfolio positioning:** Present RabbitCare as a Business & System Analysis case study. Lead with the process comparison, booking approval workflow, and lifecycle model; use payment verification as the deeper system-analysis example. If the Figma Make prototype is shown, clearly attribute its UI creation to the other contributor.

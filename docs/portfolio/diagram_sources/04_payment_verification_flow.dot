@@ -1,0 +1,19 @@
+
+digraph G {
+  graph [rankdir=TB, bgcolor="#FFFFFF", pad="0.35", nodesep="0.65", ranksep="0.65", splines=polyline, fontname="Arial", labelloc="t", label="PAYMENT GATEWAY | VERIFIED RESULT & IDEMPOTENT PROCESSING", fontsize=20, fontcolor="#14243A"];
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=11, margin="0.22,0.18", penwidth=1.35, width=4.4, height=2.0, fontcolor="#14243A"];
+  edge [fontname="Arial", fontsize=9, color="#64748B", penwidth=1.35, arrowsize=0.8, fontcolor="#475569"];
+
+  S1 [label="1. PAYMENT INITIATION\n\nOwner opens their invoice and submits a request\nwith an Idempotency-Key.\n\nSystem validates invoice ownership, outstanding\namount and currency, then creates a Payment attempt\nwith status PENDING.\n\nA repeated key returns the existing attempt.", fillcolor="#EEF5FF", color="#7FA6D8"];
+  S2 [label="2. PROVIDER INTERACTION\n\nPayment Gateway Adapter requests a hosted checkout.\nOwner completes payment with the provider.\n\nA timeout / unknown outcome keeps the attempt PENDING;\nstatus inquiry or exception handling is required.\nA definite checkout creation failure is recorded as\nan exception and must never be marked PAID.", fillcolor="#F2EEFF", color="#9A87C8"];
+  S3 [label="3. CALLBACK & VERIFICATION\n\nBackend receives a provider callback / webhook\nor a server-side status inquiry.\n\nIt verifies provider authentication and matches the\nprovider reference, invoice, amount, currency and event.\n\nDuplicate events are idempotent. Invalid or unmatched\nevents are recorded without settling the invoice.", fillcolor="#E7F1FF", color="#4C83C3"];
+  S4 [label="4. SETTLEMENT & RECONCILIATION\n\nVerified success + unpaid invoice:\nPayment = PAID; Invoice = LUNAS; issue one receipt.\n\nVerified pending / failed / cancelled:\nupdate the Payment attempt only; Invoice stays unpaid.\n\nIf another attempt already settled the invoice,\nrecord an exception and reconcile; no second receipt.", fillcolor="#EAF7EF", color="#67A17B"];
+
+  {rank=same; S1; S2;}
+  {rank=same; S3; S4;}
+  S1 -> S2 [label="checkout request"];
+  S2 -> S3 [label="provider result", minlen=1];
+  S3 -> S4 [label="verified outcome"];
+  note [shape=note, style="filled", fillcolor="#FFFDF5", color="#D8C89A", fontname="Arial", fontsize=10, label="CONTROL PRINCIPLE\nA browser redirect is not proof of payment. Only a verified provider result may update Payment and Invoice.\nThe policy for a different Idempotency-Key while another attempt is active remains open pending stakeholder validation."];
+  S4 -> note [style=dashed, arrowhead=none, color="#B49C62"];
+}

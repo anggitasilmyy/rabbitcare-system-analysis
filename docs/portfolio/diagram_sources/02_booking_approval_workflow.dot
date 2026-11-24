@@ -1,0 +1,39 @@
+
+digraph G {
+  graph [rankdir=TB, bgcolor="#FFFFFF", pad="0.25", nodesep="0.30", ranksep="0.42", splines=polyline, fontname="Arial", labelloc="t", label="OWNER BOOKING REQUEST & ADMIN APPROVAL", fontsize=20, fontcolor="#14243A"];
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=10, margin="0.16,0.11", color="#B8C7D9", penwidth=1.2, fillcolor="#F7FAFE", fontcolor="#14243A"];
+  edge [fontname="Arial", fontsize=9, color="#64748B", penwidth=1.25, arrowsize=0.75, fontcolor="#475569"];
+
+  start [shape=circle, label="", width=0.18, height=0.18, fixedsize=true, fillcolor="#14243A", color="#14243A"];
+  owner [label="OWNER PORTAL\nSelect rabbit, service, date and slot\nReview and submit request", fillcolor="#EEF5FF", color="#7FA6D8"];
+  valid [shape=diamond, label="Request valid and\nslot available?", fillcolor="#FFF7E6", color="#D6A64F"];
+  error [label="Show validation error / slot unavailable\nOwner corrects details or selects another slot", fillcolor="#FFF4E5", color="#D6A64F"];
+  pending [label="SYSTEM CREATES BOOKING\nStatus: MENUNGGU_KONFIRMASI\nSave request and audit event", fillcolor="#E7F1FF", color="#4C83C3", penwidth=1.6];
+  review [label="ADMIN REVIEW\nInspect request, schedule and capacity", fillcolor="#F2EEFF", color="#9A87C8"];
+  decision [shape=diamond, label="Admin decision?", fillcolor="#FFF7E6", color="#D6A64F"];
+  reject [label="REJECT\nConfirm request is still pending\nRequire rejection reason\nSave Admin and decision time\nStatus: DITOLAK", fillcolor="#FCEEEE", color="#CB8585"];
+  approve [label="APPROVE\nLock booking and capacity\nRevalidate pending status and slot", fillcolor="#E7F1FF", color="#4C83C3"];
+  capacity [shape=diamond, label="Still pending\nand capacity available?", fillcolor="#FFF7E6", color="#D6A64F"];
+  confirm [label="CONFIRM BOOKING\nStatus: TERKONFIRMASI\nSave Admin and decision time", fillcolor="#EAF7EF", color="#67A17B"];
+  conflict [label="ROLL BACK APPROVAL\nReturn slot-unavailable / already-decided\nAdmin reviews and follows up", fillcolor="#FFF4E5", color="#D6A64F"];
+  ownerstatus [label="OWNER VIEWS DECISION\nStatus and rejection reason if applicable", fillcolor="#EEF5FF", color="#7FA6D8"];
+  end [shape=doublecircle, label="", width=0.18, height=0.18, fixedsize=true, fillcolor="#14243A", color="#14243A"];
+
+  start -> owner -> valid;
+  valid -> pending [label="Yes"];
+  valid -> error [label="No"];
+  error -> owner [label="Correct / retry", constraint=false];
+  pending -> review -> decision;
+  decision -> reject [label="Reject"];
+  decision -> approve [label="Approve"];
+  approve -> capacity;
+  capacity -> confirm [label="Yes"];
+  capacity -> conflict [label="No"];
+  conflict -> review [label="Follow-up", constraint=false];
+  reject -> ownerstatus;
+  confirm -> ownerstatus;
+  ownerstatus -> end;
+
+  note [shape=note, style="filled", fillcolor="#FFFDF5", color="#D8C89A", fontsize=9, label="Submission does not confirm a booking. Only an authorized Admin can approve/reject.\\nCapacity is revalidated at approval. Pending slot hold/expiry and a separate Admin-created\\nbooking flow remain open for stakeholder validation."];
+  ownerstatus -> note [style=dashed, arrowhead=none, color="#B49C62"];
+}

@@ -1,0 +1,32 @@
+
+digraph G {
+  graph [rankdir=TB, bgcolor="#FFFFFF", pad="0.35", nodesep="0.55", ranksep="0.35", splines=polyline, fontname="Arial", labelloc="t", label="BOOKING PROCESS | BASELINE MODEL vs PROPOSED TO-BE", fontsize=20, fontcolor="#14243A"];
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=11, margin="0.18,0.13", color="#B8C7D9", penwidth=1.2, fillcolor="#F7FAFE", fontcolor="#14243A", width=3.5];
+  edge [fontname="Arial", fontsize=9, color="#64748B", penwidth=1.25, arrowsize=0.75, fontcolor="#475569"];
+
+  BH [shape=plain, label=<<FONT FACE="Arial" POINT-SIZE="13" COLOR="#475569"><B>BASELINE MODEL v1.0</B></FONT><BR/><FONT FACE="Arial" POINT-SIZE="9" COLOR="#64748B">Repository model — not field-validated</FONT>>];
+  TH [shape=plain, label=<<FONT FACE="Arial" POINT-SIZE="13" COLOR="#1D4F91"><B>REFINED TO-BE v1.2</B></FONT><BR/><FONT FACE="Arial" POINT-SIZE="9" COLOR="#64748B">Proposed workflow — pending validation</FONT>>];
+
+  B1 [label="Owner selects rabbit, service,\nstaff, date and time", fillcolor="#F8FAFC"];
+  B2 [label="System checks schedule and\nslot capacity; displays summary", fillcolor="#F8FAFC"];
+  B3 [label="Owner confirms booking", fillcolor="#F8FAFC"];
+  B4 [label="System saves as\nTERKONFIRMASI", fillcolor="#F8FAFC", color="#94A3B8"];
+
+  T1 [label="Owner submits booking request\nthrough Owner Portal", fillcolor="#EEF5FF", color="#7FA6D8"];
+  T2 [label="System validates access, ownership,\nrequired data, service and capacity", fillcolor="#EEF5FF", color="#7FA6D8"];
+  T3 [label="Create request as\nMENUNGGU_KONFIRMASI", fillcolor="#E7F1FF", color="#4C83C3"];
+  T4 [label="Authorized Admin reviews\nrequest and clinic capacity", fillcolor="#F2EEFF", color="#9A87C8"];
+  T5 [label="Before approval: revalidate\npending status and slot capacity", fillcolor="#E7F1FF", color="#4C83C3"];
+  T6 [label="Approve → revalidate capacity → TERKONFIRMASI\nReject → pending check + reason → DITOLAK", fillcolor="#EAF7EF", color="#67A17B"];
+
+  {rank=same; BH; TH;}
+  {rank=same; B1; T1;}
+  {rank=same; B2; T2;}
+  {rank=same; B3; T3;}
+  {rank=same; B4; T4;}
+  BH -> B1 -> B2 -> B3 -> B4;
+  TH -> T1 -> T2 -> T3 -> T4 -> T5 -> T6;
+
+  note [shape=note, style="filled", fillcolor="#FFFDF5", color="#D8C89A", fontsize=9, fontname="Arial", label="Key refinement: the Owner's submission creates a pending request, not a confirmed booking.\\nAdmin approval requires a second capacity check. Pending-slot hold/expiry and Admin-created booking remain open decisions."];
+  T6 -> note [style=dashed, arrowhead=none, color="#B49C62"];
+}

@@ -1,0 +1,23 @@
+
+digraph G {
+  graph [rankdir=TB, bgcolor="#FFFFFF", pad="0.30", nodesep="0.55", ranksep="0.75", splines=polyline, fontname="Arial", labelloc="t", label="RABBITCARE | FIVE SEPARATE OPERATIONAL LIFECYCLES", fontsize=20, fontcolor="#14243A"];
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=11, margin="0.18,0.14", penwidth=1.35, width=3.0, fontcolor="#14243A"];
+  edge [fontname="Arial", fontsize=9, color="#64748B", penwidth=1.25, arrowsize=0.75, fontcolor="#475569"];
+
+  Booking [label="1. BOOKING\nRequest & Admin decision\n\nMENUNGGU_KONFIRMASI\nTERKONFIRMASI · DITOLAK\nDIBATALKAN · DIJADWALKAN_ULANG", fillcolor="#F1F7FF", color="#4C83C3"];
+  Visit [label="2. VISIT\nAttendance & encounter\n\nBELUM_CHECK_IN · CHECKED_IN\nMENUNGGU_ANTREAN\nBERLANGSUNG · SELESAI · TIDAK_HADIR", fillcolor="#F7F4FC", color="#8B78B8"];
+  Service [label="3. SERVICE EXECUTION\nProgress of each recorded service\n\nBELUM_DIMULAI\nSEDANG_DILAKSANAKAN\nSELESAI · DIBATALKAN", fillcolor="#F1F8F3", color="#5D9B78"];
+  Invoice [label="4. INVOICE\nAmount due & settlement state\n\nBELUM_DIBAYAR · LUNAS", fillcolor="#FFF9F0", color="#C18A43"];
+  Payment [label="5. PAYMENT ATTEMPT\nOutcome of each transaction attempt\n\nPENDING · PAID · FAILED\nCANCELLED · REFUNDED*", fillcolor="#FFF5F5", color="#C06D76"];
+
+  {rank=same; Booking; Visit; Service;}
+  {rank=same; Invoice; Payment;}
+  Booking -> Visit [label="may result in\n0..1 Visit"];
+  Visit -> Service [label="contains\n0..* executions"];
+  Booking -> Invoice [label="may generate\n0..1 Invoice"];
+  Invoice -> Payment [label="has 0..*\npayment attempts"];
+
+  note [shape=note, style="filled", fillcolor="#FFFDF5", color="#D8C89A", fontname="Arial", fontsize=10, label="INVOICE ITEM TRACEABILITY\nInvoice items may reference recorded service executions and other recorded items. Exact mapping/cardinality remains a detailed billing-design decision.\n\nINDEPENDENT STATUS CONTROL\nA Payment update does not change Booking, Visit or Service Execution status. Verified payment success updates Payment = PAID and Invoice = LUNAS.\n*Refund is future scope / separate approval. State names and some transitions remain proposed pending stakeholder validation."];
+  Service -> note [style=dashed, arrowhead=none, color="#B49C62"];
+  Payment -> note [style=dashed, arrowhead=none, color="#B49C62"];
+}
